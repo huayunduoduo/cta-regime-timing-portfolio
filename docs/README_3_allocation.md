@@ -26,7 +26,7 @@
 ## Windows / VS Code：一步步运行
 
 1. **新解压到一个新文件夹**，例如 `D:/cta/cta_paper_daily_new`。不要把Python代码和终端命令混在一起。用VS Code“文件 → 打开文件夹”打开包含本README和portfolio_research.py的文件夹。
-2. 本包已带 `data/etf_daily.csv`、`data/etf_dividend.csv`，不需要再改字段、复制数据或下载行情。
+2. 仓库不随包分发行情数据，需自备 `data/etf_daily.csv`、`data/etf_dividend.csv`（字段格式见 [DATA.md](../DATA.md)），不需要改字段或另存 Excel。
 3. 你已有cta_research环境。在VS Code底部终端逐行输入（PowerShell）：
 
 ```powershell

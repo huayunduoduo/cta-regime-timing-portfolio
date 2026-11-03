@@ -34,7 +34,7 @@
 
 ## 快速开始
 
-Python 3.10+。阶段 3 入口不依赖 C++ 与缓存，数十秒出结果：
+Python 3.10+。阶段 3 入口不依赖 C++ 与缓存，数十秒出结果。**仓库不随包分发行情数据**（授权原因），需自备 `data/etf_daily.csv`、`data/etf_dividend.csv`，字段格式见 [DATA.md](DATA.md)：
 
 ```powershell
 conda activate cta_research          # 或自建环境
