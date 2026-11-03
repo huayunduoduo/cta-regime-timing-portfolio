@@ -1,0 +1,39 @@
+{
+  "start": "2020-01-01",
+  "end": "2025-12-31",
+  "variants": [
+    "baseline_full",
+    "baseline_long",
+    "neutral_10",
+    "no_rho_10",
+    "no_rho_3",
+    "no_rho_3of5",
+    "risk_separate_3of5",
+    "buyhold"
+  ],
+  "fee": 0.001,
+  "slip": 0.001,
+  "models_reestimated": false,
+  "inputs": {
+    "510300": {
+      "input_hash": "9876a0a96306dc2b",
+      "cache_sha256": "bc318fea6fc3e3a463a984db119e25ff99b1cebb378e07a2bca1cbe4ac0c44fa"
+    },
+    "518880": {
+      "input_hash": "d0f72be81ec3d3cb",
+      "cache_sha256": "928f8427bc643f50e53660578e5396eee81e84d78013abb251017fc40674a686"
+    },
+    "511010": {
+      "input_hash": "cec2cf1d6f854a3a",
+      "cache_sha256": "622aaa3c52bc66fbc87f9fd4fbfa758e348a8c88d49187fa9f426e5c04fa1159"
+    }
+  },
+  "source_sha256": {
+    "engine.py": "bdf3584c5e353ffe1c8e19d41f89ebcc5ec00024e885bd94041d79cda981a28b",
+    "model.py": "d62f0eee5aa7087768f7a1bddd67d29fe8c7bb31d497326245025a663955028c",
+    "native/model.cpp": "de5d0db13917698dadbb0ac8047a743acd192935811016b0f01a782ec13f2fe6",
+    "improvement_signals.py": "d5102e328e3892274fde27e7e34469ec956e71454e614d9db283f81ed2996984",
+    "run_improvements.py": "9203a3a0825b8422575010443f0528f73c71e82be48b284bd262452b85a58c7e"
+  },
+  "note": "Fixed retrospective ablations; no tuning or new out-of-sample claim"
+}

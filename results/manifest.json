@@ -1,0 +1,40 @@
+{
+  "status": "COMPLETED",
+  "scope": "paper single-asset experiments, daily execution; NOT exact minute or full-period replication",
+  "start": "2020-01-01",
+  "end": "2025-12-31",
+  "bootstrap": 1000,
+  "models_recomputed_this_run": 0,
+  "input_sha256": {
+    "etf_daily.csv": "311b38536253dce9dda865a21a836cd348e88708d0052689a95e95a7d3c99591",
+    "etf_dividend.csv": "5e0e0c70f7facbc8743b113e6bdc28c129fa06b0abdf562ad78eee0938f04479"
+  },
+  "source_model_sha256": {
+    "model.py": "d62f0eee5aa7087768f7a1bddd67d29fe8c7bb31d497326245025a663955028c",
+    "native/model.cpp": "de5d0db13917698dadbb0ac8047a743acd192935811016b0f01a782ec13f2fe6"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+  "numpy": "2.3.5",
+  "pandas": "2.2.3",
+  "fee": 0.001,
+  "slip": 0.001,
+  "seed_rule": "20260610+code*10000+row",
+  "rsi": "14-day simple gains/losses, Wilder sensitivity",
+  "atr": "expanding per-day 5/95% TR clip (min 30), SMA14; local14 sensitivity",
+  "short_model": "idealized 100% signed notional; no borrowing fee/margin constraint/interest",
+  "cash_rate": 0.0,
+  "terminal": "mark-to-market; open positions excluded from trade win rate",
+  "package_versions": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0",
+    "matplotlib": "3.10.8"
+  },
+  "verification": {
+    "unit_tests_passed": 15,
+    "ledgers_reconciled": 18,
+    "independently_recomputed_model_windows": 3,
+    "bootstrap_per_recomputed_window": 1000
+  }
+}

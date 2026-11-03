@@ -1,0 +1,2 @@
+entry_date,exit_date,direction,kind,entry_price,exit_price,return_net,reason
+2020-01-02,2020-09-09,1,trend,119.72060099999999,120.307572,0.002895042522959246,confirmed_ma_exit

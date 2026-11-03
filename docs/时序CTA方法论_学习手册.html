@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>时序CTA方法论 · 零基础精读手册</title>
+<style>
+  :root{
+    --bg:#f6f4ef;
+    --panel:#fffdf9;
+    --panel-2:#fbf9f4;
+    --ink:#1c1c1a;
+    --ink-2:#3d3d38;
+    --muted:#6d6b62;
+    --line:#e3ded2;
+    --line-strong:#cfc8b8;
+    --accent:#0f6b5f;
+    --accent-2:#14867a;
+    --accent-soft:#e2efeb;
+    --warn:#a8552c;
+    --warn-soft:#f8ebe1;
+    --gold:#8a6d2f;
+    --gold-soft:#f6efdc;
+    --shadow:0 1px 2px rgba(28,28,26,.04), 0 8px 24px rgba(28,28,26,.05);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:16.5px;line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:"Songti SC","Noto Serif SC",Georgia,"Times New Roman",serif;}
+
+  /* ---------- progress + nav ---------- */
+  #progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;z-index:100;transition:width .1s linear;}
+  nav.topbar{
+    position:sticky;top:0;z-index:90;background:rgba(246,244,239,.92);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  }
+  .nav-inner{max-width:1180px;margin:0 auto;padding:9px 22px;display:flex;align-items:center;gap:18px;}
+  .nav-title{font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--ink-2);white-space:nowrap;}
+  .nav-links{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+  .nav-links::-webkit-scrollbar{display:none;}
+  .nav-links a{
+    font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 9px;border-radius:6px;white-space:nowrap;
+  }
+  .nav-links a:hover{background:var(--accent-soft);color:var(--accent);}
+  .nav-links a.active{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+
+  /* ---------- layout ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px;display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:44px;}
+  main{min-width:0;padding:38px 0 90px;}
+  aside.toc{position:sticky;top:76px;align-self:start;padding-top:46px;font-size:13px;}
+  aside.toc .toc-h{font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
+  aside.toc a{display:block;color:var(--muted);text-decoration:none;padding:4px 0 4px 11px;border-left:2px solid transparent;line-height:1.5;}
+  aside.toc a:hover{color:var(--accent);}
+  aside.toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600;}
+
+  /* ---------- hero ---------- */
+  header.hero{padding:46px 0 34px;border-bottom:1px solid var(--line);}
+  .eyebrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--muted);margin-bottom:18px;}
+  .tag{display:inline-block;background:var(--panel);border:1px solid var(--line-strong);border-radius:999px;padding:2px 10px;font-size:11.5px;letter-spacing:.02em;}
+  .tag.accent{background:var(--accent-soft);border-color:#bcd8d2;color:var(--accent);}
+  h1{font-size:40px;line-height:1.25;margin:0 0 6px;letter-spacing:-.01em;font-weight:600;}
+  h1 small{display:block;font-size:19px;color:var(--muted);font-weight:400;margin-top:12px;letter-spacing:0;}
+  .hero-q{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px;}
+  .hero-q div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 15px;font-size:13.5px;line-height:1.6;color:var(--ink-2);}
+  .hero-q b{display:block;font-family:"SF Mono",Consolas,monospace;font-size:11px;color:var(--accent);letter-spacing:.1em;margin-bottom:4px;}
+
+  /* ---------- section ---------- */
+  section{padding:52px 0 8px;border-top:1px solid var(--line);}
+  section:first-of-type{border-top:none;padding-top:34px;}
+  .sec-num{font-family:"SF Mono",Consolas,monospace;font-size:12px;color:var(--accent);letter-spacing:.18em;margin-bottom:6px;}
+  h2{font-size:27px;line-height:1.35;margin:0 0 8px;font-weight:600;letter-spacing:-.005em;}
+  h2 .en{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:.02em;display:block;margin-top:5px;}
+  h3{font-size:19px;margin:34px 0 10px;font-weight:600;}
+  h4{font-size:15.5px;margin:22px 0 6px;font-weight:600;color:var(--ink-2);}
+  p{margin:12px 0;}
+  ul,ol{margin:12px 0;padding-left:22px;}
+  li{margin:7px 0;}
+  strong{font-weight:600;}
+  em{font-style:normal;background:linear-gradient(transparent 62%,var(--gold-soft) 62%);padding:0 1px;}
+  a{color:var(--accent);}
+  code{font-family:"SF Mono",Consolas,"Courier New",monospace;font-size:.9em;background:#efece3;border-radius:4px;padding:1px 5px;}
+  .lead{font-size:17.5px;color:var(--ink-2);}
+
+  /* ---------- callouts ---------- */
+  .box{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:16px 19px;margin:20px 0;box-shadow:var(--shadow);}
+  .box .b-title{font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:7px;}
+  .box .b-title::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);}
+  .box p:first-of-type{margin-top:0;}
+  .box p:last-child{margin-bottom:0;}
+  .box.quote{background:var(--panel-2);border-left:3px solid var(--line-strong);}
+  .box.quote .b-title::before{background:var(--gold);}
+  .box.quote .q{color:var(--ink-2);font-size:15.5px;}
+  .box.idea{background:var(--accent-soft);border-color:#cbe1db;}
+  .box.idea .b-title::before{background:var(--accent);}
+  .box.warn{background:var(--warn-soft);border-color:#eed3c1;}
+  .box.warn .b-title::before{background:var(--warn);}
+  .box.analogy{background:var(--gold-soft);border-color:#e8dcbe;}
+  .box.analogy .b-title::before{background:var(--gold);}
+
+  /* ---------- tables ---------- */
+  .t-wrap{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:10px;background:var(--panel);}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;}
+  th,td{padding:10px 13px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);}
+  th{background:#f2efe7;font-weight:600;font-size:12.5px;letter-spacing:.03em;color:var(--ink-2);white-space:nowrap;}
+  tr:last-child td{border-bottom:none;}
+  td.num{font-family:"SF Mono",Consolas,monospace;font-size:13.5px;}
+
+  /* ---------- formula ---------- */
+  .formula{
+    background:#fbf9f4;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:18px 0;
+    font-family:"SF Mono",Consolas,"Courier New",monospace;font-size:15px;line-height:1.9;overflow-x:auto;color:#243b36;
+  }
+  .formula .lbl{display:block;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:.04em;}
+  .frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;}
+  .frac span:first-child{border-bottom:1px solid currentColor;padding:0 5px 1px;}
+  .frac span:last-child{padding:2px 5px 0;}
+
+  /* ---------- lab ---------- */
+  .lab{background:linear-gradient(180deg,#fdfcf8,#f9f7f1);border:1px solid var(--line-strong);border-radius:14px;margin:26px 0;overflow:hidden;box-shadow:var(--shadow);}
+  .lab-head{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);background:rgba(226,239,235,.5);}
+  .lab-badge{font-family:"SF Mono",Consolas,monospace;font-size:10.5px;letter-spacing:.14em;background:var(--accent);color:#fff;border-radius:4px;padding:2px 7px;}
+  .lab-head b{font-size:14.5px;font-weight:600;}
+  .lab-head span.hint{font-size:12.5px;color:var(--muted);margin-left:auto;}
+  .lab-body{padding:18px;}
+  canvas{width:100%;display:block;border-radius:8px;}
+  .controls{display:flex;flex-wrap:wrap;gap:16px 22px;margin-top:16px;}
+  .ctrl{flex:1 1 190px;min-width:170px;}
+  .ctrl label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px;}
+  .ctrl label b{font-family:"SF Mono",Consolas,monospace;color:var(--accent);font-weight:600;}
+  input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--line-strong);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.22);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #fff;cursor:pointer;}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .presets button,.tabs button{
+    font-family:inherit;font-size:13px;padding:6px 13px;border-radius:8px;border:1px solid var(--line-strong);
+    background:var(--panel);color:var(--ink-2);cursor:pointer;transition:all .15s;
+  }
+  .presets button:hover,.tabs button:hover{border-color:var(--accent);color:var(--accent);}
+  .presets button.on,.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:16px;}
+  .readout div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 12px;}
+  .readout span{display:block;font-size:11.5px;color:var(--muted);letter-spacing:.02em;}
+  .readout b{font-family:"SF Mono",Consolas,monospace;font-size:16px;font-weight:600;color:var(--ink);}
+  .verdict{margin-top:14px;padding:11px 15px;border-radius:9px;font-size:14.5px;border:1px solid #cbe1db;background:var(--accent-soft);color:#0b4f46;}
+  .verdict.chop{border-color:#eed3c1;background:var(--warn-soft);color:#7d3d1c;}
+  .tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+
+  /* ---------- cards ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:13px;margin:20px 0;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:15px 17px;box-shadow:var(--shadow);}
+  .card h5{margin:0 0 6px;font-size:15px;font-weight:600;}
+  .card p{margin:0;font-size:13.8px;color:var(--muted);line-height:1.7;}
+  .card .n{font-family:"SF Mono",Consolas,monospace;font-size:11px;color:var(--accent);letter-spacing:.1em;display:block;margin-bottom:6px;}
+
+  /* ---------- flow ---------- */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:20px 0;}
+  .flow .step{flex:1 1 150px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;position:relative;}
+  .flow .step b{display:block;font-size:14px;margin-bottom:3px;}
+  .flow .step span{font-size:12.5px;color:var(--muted);line-height:1.6;display:block;}
+  .flow .arrow{display:flex;align-items:center;color:var(--line-strong);font-size:18px;}
+
+  /* ---------- quiz ---------- */
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:16px 0;box-shadow:var(--shadow);}
+  .quiz .qtext{font-weight:600;margin-bottom:10px;font-size:15.5px;}
+  .quiz .qtext i{font-style:normal;font-family:"SF Mono",Consolas,monospace;color:var(--accent);font-size:12px;margin-right:7px;}
+  .opts{display:grid;gap:7px;}
+  .opt{text-align:left;font-family:inherit;font-size:14.3px;line-height:1.65;padding:9px 13px;border:1px solid var(--line);background:var(--panel-2);border-radius:8px;cursor:pointer;color:var(--ink-2);transition:all .14s;}
+  .opt:hover{border-color:var(--accent);background:#fff;}
+  .opt.correct{border-color:#5aa58f;background:#e6f4ef;color:#0b4f46;font-weight:600;}
+  .opt.wrong{border-color:#d89b7a;background:#fbeee6;color:#7d3d1c;}
+  .explain{display:none;margin-top:10px;font-size:14px;color:var(--ink-2);background:var(--panel-2);border-left:2px solid var(--accent);padding:9px 13px;border-radius:0 7px 7px 0;line-height:1.75;}
+  .explain.show{display:block;}
+  .score{font-size:14px;color:var(--muted);margin-top:8px;}
+
+  /* ---------- glossary ---------- */
+  .gloss{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:10px;margin:18px 0;}
+  .gloss div{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:11px 14px;font-size:13.6px;line-height:1.7;}
+  .gloss b{color:var(--accent);}
+  .gloss em{background:none;font-style:normal;color:var(--muted);font-size:12px;display:block;margin-top:3px;}
+
+  footer{border-top:1px solid var(--line);margin-top:56px;padding:26px 0 60px;font-size:12.8px;color:var(--muted);line-height:1.9;}
+
+  @media (max-width:980px){
+    .wrap{grid-template-columns:1fr;gap:0;}
+    aside.toc{display:none;}
+    h1{font-size:31px;}
+    .hero-q{grid-template-columns:1fr;}
+    body{font-size:16px;}
+  }
+  @media print{
+    nav.topbar,aside.toc,#progress{display:none;}
+    body{background:#fff;}
+    .lab{break-inside:avoid;}
+    section{break-inside:auto;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<nav class="topbar">
+  <div class="nav-inner">
+    <div class="nav-title">时序CTA · 精读手册</div>
+    <div class="nav-links" id="navlinks">
+      <a href="#s0">读前须知</a>
+      <a href="#s1">① 三元分解</a>
+      <a href="#s2">② 趋势信噪比</a>
+      <a href="#s3">③ 参数估计</a>
+      <a href="#s4">④ 开仓信号</a>
+      <a href="#s5">⑤ 退出机制</a>
+      <a href="#s6">⑥ 实证</a>
+      <a href="#s7">术语表</a>
+      <a href="#s8">自测</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+<main>
+
+<header class="hero">
+  <div class="eyebrow">
+    <span class="tag accent">华泰证券金融工程</span>
+    <span class="tag">2026-06-10</span>
+    <span class="tag">徐特 S0570523050005 · 何康 S0570520080004</span>
+    <span class="tag">方法论综述</span>
+  </div>
+  <h1 class="serif">时序 CTA 方法论综述<small>市场状态、开仓信号与退出机制 —— 写给零基础读者的逐节精读</small></h1>
+
+  <p class="lead" style="margin-top:22px">
+    这篇报告的核心只有一句话：<strong>先判断“这段行情值不值得做趋势”，再决定用什么信号入场，最后用一套多层机制退出。</strong>
+    它把“凭感觉看 K 线”换成了三个可以算出来的数字——长期趋势 <code>μ</code>、短期惯性 <code>ρ</code>、背景噪声 <code>σ</code>。
+  </p>
+
+  <div class="hero-q">
+    <div><b>Q1</b>现在市场是趋势还是震荡？<br><span style="color:var(--muted);font-size:12.5px">→ 用 (μ, ρ, σ) 与 TSI</span></div>
+    <div><b>Q2</b>该用什么信号开仓？<br><span style="color:var(--muted);font-size:12.5px">→ 三层级：滤波 / 归一 / 融合</span></div>
+    <div><b>Q3</b>什么时候退出？<br><span style="color:var(--muted);font-size:12.5px">→ 四层：止损 / 证伪 / 时间 / 风控</span></div>
+  </div>
+</header>
+
+<!-- ============ S0 ============ -->
+<section id="s0">
+  <div class="sec-num">SECTION 00</div>
+  <h2>读前须知：三分钟建立地图</h2>
+  <p>如果你完全没接触过量化，先记住三个词，别急着看公式。</p>
+
+  <div class="cards">
+    <div class="card"><span class="n">TERM 01</span><h5>CTA</h5><p>Commodity Trading Advisor，原指商品交易顾问，现在泛指<strong>做期货、做多空、跟趋势</strong>的一类策略。它赚的是“价格走出方向”的钱。</p></div>
+    <div class="card"><span class="n">TERM 02</span><h5>时序 vs 截面</h5><p><strong>时序</strong>：只看一个品种自己的历史，判断它接下来涨还是跌（本文研究对象）。<strong>截面</strong>：把一堆股票横向排队，买最好的、卖最差的（大家更熟悉的选股）。</p></div>
+    <div class="card"><span class="n">TERM 03</span><h5>趋势追踪</h5><p>涨了就买、跌了就卖，假设“惯性会延续”。它的收益特征是：<strong>大量小亏 + 少数大赚</strong>，胜率常低于 50%。</p></div>
+  </div>
+
+  <div class="box idea">
+    <div class="b-title">全文的逻辑链（背下来这一条就够）</div>
+    <div class="flow">
+      <div class="step"><b>收益率三元分解</b><span>μ 趋势、ρ 惯性、σ 噪声</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>算 TSI 判状态</b><span>趋势可不可交易</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>按状态选信号</b><span>趋势用突破，震荡用反转</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>四层退出</b><span>截断亏损，让利润奔跑</span></div>
+    </div>
+  </div>
+
+  <div class="box analogy">
+    <div class="b-title">先给一个贯穿全文的比喻：河流</div>
+    <p>把价格想象成一条河的水位。</p>
+    <ul style="margin-bottom:0">
+      <li><strong>μ（长期趋势）</strong>＝河床的坡度。坡度陡，水最终会往一个方向流。</li>
+      <li><strong>ρ（短期惯性）</strong>＝水流的方向感。水有没有“顺着前一段继续流”的倾向；如果 ρ&lt;0，水会在原地打转甚至倒流。</li>
+      <li><strong>σ（背景噪声）</strong>＝水面上的浪。浪越大，你越难看清坡度。</li>
+    </ul>
+    <p style="margin-bottom:0">报告的全部洞察就在这句：<em>判断能不能做趋势，不看坡度本身，而看“坡度 vs 浪”谁更大。</em></p>
+  </div>
+
+  <h3>怎么读这份手册</h3>
+  <ol>
+    <li><strong>第一遍</strong>：只读每节的「一句话」和三个交互实验室，先建立直觉，公式全部跳过。</li>
+    <li><strong>第二遍</strong>：读正文，动手把实验室的滑杆拖到极端值，看结论怎么变。</li>
+    <li><strong>第三遍</strong>：做最后的 8 道自测题，能对 6 道以上，说明这篇报告你已经能跟人讲清楚了。</li>
+  </ol>
+</section>
+
+<!-- ============ S1 ============ -->
+<section id="s1">
+  <div class="sec-num">SECTION 01</div>
+  <h2>价格的三元分解：μ、ρ、σ<span class="en">Decomposing returns into trend, momentum and noise</span></h2>
+
+  <p class="lead">报告拒绝“看 K 线形态”，改用三个统计参数描述市场。这是全文的地基。</p>
+
+  <h3>1.1 它到底假设了什么</h3>
+  <p>报告假设资产的日收益率 <code>r<sub>t</sub></code> 服从一个 <strong>AR(1)</strong>（一阶自回归）过程。翻成人话：</p>
+  <div class="formula">
+    <span class="lbl">AR(1)：今天的收益 = 长期中枢 + 昨天的“惯性残留” + 今天的随机扰动</span>
+    r<sub>t</sub> = μ(1−ρ) + ρ·r<sub>t−1</sub> + ε<sub>t</sub>&nbsp;&nbsp;&nbsp;&nbsp;ε<sub>t</sub> ~ N(0, σ²)
+  </div>
+
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>参数</th><th>含义</th><th>经济学解释</th><th>取值影响</th></tr></thead>
+      <tbody>
+        <tr><td><code>μ</code></td><td>长期趋势项（期望收益率）</td><td>各类风险溢价的补偿之和</td><td>决定价格长期往哪走、走多快</td></tr>
+        <tr><td><code>ρ</code></td><td>短期惯性项（一阶自回归系数）</td><td>历史信息的延续性</td><td>ρ&gt;0 趋势倾向；ρ&lt;0 反转倾向；ρ=0 随机游走</td></tr>
+        <tr><td><code>σ</code></td><td>背景噪声（残差标准差）</td><td>无法被模型解释的随机扰动</td><td>噪声越大，趋势越难辨认，也越容易“无效磨损”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box quote">
+    <div class="b-title">原文怎么说</div>
+    <p class="q">“在构建交易策略时，单纯关注 μ 往往具有误导性。同样是一段长期趋势，但微观结构不同，其‘可交易性’大相径庭。”</p>
+  </div>
+
+  <h3>1.2 亲手造三条价格曲线</h3>
+  <p>报告用同一随机种子模拟了三种微观结构。下面这个实验室把这件事变成了你可以实时调参的玩具——<strong>拖动三个滑杆，看价格曲线怎么变</strong>。</p>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-badge">LAB 01</span><b>AR(1) 价格模拟器</b><span class="hint">拖动滑杆 · 共 480 个交易日</span></div>
+    <div class="lab-body">
+      <div class="presets" id="ar1Presets">
+        <button data-mu="0.005" data-rho="0.5" data-sigma="0.02" class="on">趋势主导</button>
+        <button data-mu="0.005" data-rho="-0.5" data-sigma="0.02">短期反转中震荡</button>
+        <button data-mu="0.005" data-rho="0.1" data-sigma="0.10">随机游走中震荡</button>
+        <button data-mu="0.005" data-rho="0.7" data-sigma="0.01">强趋势低噪声</button>
+      </div>
+      <canvas id="ar1cv" height="290"></canvas>
+      <div class="controls">
+        <div class="ctrl"><label>μ 日趋势 <b id="vMu">0.500%</b></label><input type="range" id="rMu" min="0" max="0.01" step="0.0005" value="0.005"></div>
+        <div class="ctrl"><label>ρ 短期惯性 <b id="vRho">0.50</b></label><input type="range" id="rRho" min="-0.9" max="0.9" step="0.05" value="0.5"></div>
+        <div class="ctrl"><label>σ 日噪声 <b id="vSig">2.00%</b></label><input type="range" id="rSig" min="0.002" max="0.12" step="0.002" value="0.02"></div>
+      </div>
+      <div class="readout">
+        <div><span>年化趋势 μ×252</span><b id="outAnn">126%</b></div>
+        <div><span>趋势信噪比 TSI = μ/σ</span><b id="outTsi">0.25</b></div>
+        <div><span>20 日累积信噪比 μ√T/σ</span><b id="outCum">1.12</b></div>
+      </div>
+      <div class="verdict" id="ar1Verdict">示意判定：趋势主导</div>
+    </div>
+  </div>
+
+  <div class="box warn">
+    <div class="b-title">这个实验室的边界（必须知道）</div>
+    <p>它只是<strong>按你设定的生成参数</strong>画一条示意曲线，判定文字也是按 ρ 与 μ/σ 的粗略规则给的，<strong>不是</strong>报告里那套五步骤的正式识别流程（后面 §3 再讲）。它的用途只有一个：让你亲眼看到“μ 相同、曲线却完全不同”。</p>
+  </div>
+
+  <h3>1.3 三条曲线分别说明了什么</h3>
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>模拟情形</th><th>参数</th><th>你看到的现象</th><th>策略后果</th></tr></thead>
+      <tbody>
+        <tr><td><strong>趋势主导</strong></td><td class="num">μ=.005 ρ=+0.5 σ=.02</td><td>长短期同向共振，曲线平滑上台阶</td><td>趋势追踪的舒适区，拿得住</td></tr>
+        <tr><td><strong>短期反转中震荡</strong></td><td class="num">μ=.005 ρ=−0.5 σ=.02</td><td>大方向向上，但天天来回折返</td><td>会陷入“止损—开仓”循环，本金被磨掉</td></tr>
+        <tr><td><strong>随机游走中震荡</strong></td><td class="num">μ=.005 ρ=+0.1 σ=.10</td><td>方向完全被噪声淹没，看不出坡度</td><td>突破信号大多是对噪声的过度拟合</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box idea">
+    <div class="b-title">一句话记住</div>
+    <p>同样年化 12% 的行情，<strong>ρ 与 σ 不同，能不能赚到完全不一样</strong>。所以第一步永远不是问“会涨吗”，而是问“这段涨势干净吗”。</p>
+  </div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section id="s2">
+  <div class="sec-num">SECTION 02</div>
+  <h2>趋势信噪比 TSI：把“可交易性”变成一个数<span class="en">Trend signal-to-noise ratio</span></h2>
+
+  <p class="lead">这是全文最有价值的单一指标：用趋势强度除以噪声，衡量“单位风险下趋势有多容易被识别”。</p>
+
+  <div class="formula">
+    <span class="lbl">趋势信噪比（在长度 T 的滚动窗口内估计）</span>
+    TSI<sub>T</sub> = μ̂<sub>T</sub> / σ̂<sub>T</sub>
+  </div>
+
+  <p>它的读法很直接：</p>
+  <ul>
+    <li><strong>TSI 显著大于 0</strong>（且 ρ&gt;0）：趋势处于可探测区间，趋势策略的舒适区。</li>
+    <li><strong>TSI 接近 0</strong>：即便 μ 不为 0，趋势也被噪声淹没——这时做突破，本质是在拟合噪声。</li>
+  </ul>
+
+  <h3>2.1 “以时间换空间”的数学来源</h3>
+  <p>报告给了一个非常漂亮的推导，也是全篇最该会推的一步：</p>
+  <div class="formula">
+    <span class="lbl">经过 T 个周期后</span>
+    累积趋势 = μ × T&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;累积噪声 = σ × √T<br><br>
+    <span class="lbl">于是累积信噪比</span>
+    <span class="frac"><span>μT</span><span>σ√T</span></span> = <span class="frac"><span>μ</span><span>σ</span></span> × √T
+  </div>
+
+  <p>关键点：<strong>信号随时间线性增长，噪声只按平方根增长。</strong>所以窗口拉长，信噪比以 √T 的速度变好。这就是“为什么高波动品种里，长周期均线通常比短周期更稳”——不是你选了更好的指标，而是你买到了更多的时间。</p>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-badge">LAB 02</span><b>线性 vs 平方根：窗口一长，谁赢？</b><span class="hint">μ=0.1%/日，σ=1.0%/日</span></div>
+    <div class="lab-body">
+      <div id="snrChart"></div>
+      <div class="readout">
+        <div><span>T=21 日 累积信噪比</span><b id="snr21">0.46</b></div>
+        <div><span>T=100 日 累积信噪比</span><b id="snr100">1.00</b></div>
+        <div><span>T=250 日 累积信噪比</span><b id="snr250">1.58</b></div>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:14.5px;color:var(--muted)">读图要点：<strong>实线（累积趋势 μT）是直线，虚线（累积噪声 σ√T）一开始冲得很高但越走越平</strong>，两线在 T=100 处交叉——在这之前，趋势打不过噪声；交叉之后，趋势开始占优。竖虚线就是这个“打平点”。</p>
+
+  <div class="box warn">
+    <div class="b-title">不要把它当定理用</div>
+    <p>上述推导假设 μ、σ 在 T 内恒定、扰动项不相关。真实市场两者都在变（所以才要用 GARCH）。报告自己也写明：引入时变波动率后，增长路径会更复杂，<strong>但“拉长窗口对抗平方根噪声”这个核心思想仍然成立</strong>。</p>
+  </div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section id="s3">
+  <div class="sec-num">SECTION 03</div>
+  <h2>怎么把 μ、ρ、σ 估出来，并判定状态<span class="en">Estimation, windows, and state identification</span></h2>
+
+  <p class="lead">这一节是全文技术含量最高的部分，也是面试最爱追问的地方：<em>你怎么知道自己算出来的 μ 不是噪音？</em></p>
+
+  <h3>3.1 从最简单的办法说起：滚动 OLS 为什么不够</h3>
+  <p>最直观的做法：取一个长度 T 的滚动窗口，用普通最小二乘（OLS）拟合 AR(1)。问题在于 OLS 隐含<strong>同方差假设</strong>——它认为每天的波动幅度差不多。而金融数据恰恰不是：地缘冲突爆发的第一周，波动率可能是平时的五倍，这时 OLS 对趋势强度的估计会失效。</p>
+
+  <h3>3.2 主力方案：GARCH(1,1)</h3>
+  <div class="formula">
+    <span class="lbl">条件异方差建模：让方差自己随时间变化</span>
+    σ<sub>t</sub>² = ω + α·ε<sub>t−1</sub>² + β·σ<sub>t−1</sub>²<br><br>
+    <span class="lbl">两项各管一件事</span>
+    α·ε<sub>t−1</sub>² → ARCH 项，捕捉<strong>即时冲击</strong>（昨天暴跌，今天方差立刻变大）<br>
+    β·σ<sub>t−1</sub>² → GARCH 项，捕捉<strong>风险持续性</strong>（高波动会延续一段时间）
+  </div>
+  <p>它的价值：在提取 μ 和 ρ 的过程中，把波动率冲击“吸收”进方差项，避免把一次暴涨暴跌误读成趋势变化。报告也提醒，经典 GARCH 仍假设波动对称、单一状态、分布稳定，真实市场常偏离，于是有 EGARCH、GJR-GARCH、MS-GARCH、重尾分布等变体。</p>
+
+  <h4>另外三条非参数路线（了解即可）</h4>
+  <div class="cards">
+    <div class="card"><span class="n">ROUTE A</span><h5>频域滤波</h5><p>傅里叶 / 小波：把价格看成波的叠加，低通滤掉高频噪声。小波还能多分辨率分解，近似系数≈μ、细节系数≈σ。</p></div>
+    <div class="card"><span class="n">ROUTE B</span><h5>经验模态分解 EMD</h5><p>不预设基函数，纯数据驱动，把序列拆成由高频到低频的若干 IMF。高频项≈噪声，低频项与残差≈趋势。</p></div>
+    <div class="card"><span class="n">ROUTE C</span><h5>动力学重构</h5><p>混沌理论视角：部分波动是系统内生的（如止损盘连锁反馈），可用相空间重构、最大李雅普诺夫指数判断窗口内是否存在有效趋势。</p></div>
+  </div>
+
+  <h3>3.3 窗口怎么选：从“拍脑袋”到自适应</h3>
+  <p>滚动窗口 T 直接决定估计的<strong>灵敏度与稳定性</strong>：窗口短，反应快但噪声大；窗口长，稳定但迟钝。实践中有两代做法：</p>
+  <ol>
+    <li><strong>固定窗口 + 多窗口投票</strong>：用月度、季度、半年度等多个长度分别建模，看多数结论是什么（报告在前期红利因子择时里用过）。</li>
+    <li><strong>自适应窗口</strong>：趋势清晰时缩短窗口、震荡时拉长窗口。报告用的是 <strong>Kaufman 效率比（ER）</strong>。</li>
+  </ol>
+
+  <div class="formula">
+    <span class="lbl">Kaufman 效率比：净位移 ÷ 走过的总路程</span>
+    ER = |P<sub>t</sub> − P<sub>t−h</sub>| / Σ<sub>i</sub> |P<sub>i</sub> − P<sub>i−1</sub>|<br><br>
+    h<sub>t</sub> = h<sub>min</sub> + (h<sub>max</sub> − h<sub>min</sub>) × (1 − ER)<br>
+    <span class="lbl">本项目实证取值：h ∈ [21, 250] 个交易日，ER 用 30 日计算</span>
+  </div>
+  <p>直觉：ER 接近 1，说明价格一路直上（路程≈位移），趋势干净，窗口缩到 21 天快速反应；ER 接近 0，说明来回折返（路程远大于位移），窗口拉到 250 天平摊噪声。</p>
+
+  <div class="box analogy">
+    <div class="b-title">比喻</div>
+    <p>你在雾里开车。<strong>路是直的</strong>（ER 高），你敢于踩油门、看得远一点也无所谓——窗口缩短。<strong>路是盘山弯道</strong>（ER 低），你必须减速、把视野拉长——窗口拉长。ER 就是“路的弯曲程度”。</p>
+  </div>
+
+  <h3>3.4 状态识别：为什么不能只看点估计</h3>
+  <p>最直接的做法是设阈值：TSI &gt; x 算趋势。但报告指出两个致命问题：</p>
+  <ul>
+    <li><strong>忽略统计误差</strong>：TSI 只是一个点估计，它本身有置信区间；</li>
+    <li><strong>临界点抖动</strong>：TSI 在阈值附近徘徊时，状态会来回翻转，产生大量无意义交易。</li>
+  </ul>
+  <p>报告的解法：对 GARCH 残差做 <strong>1,000 次有放回重采样（bootstrap）</strong>，得到 TSI 的经验分布与 95% 置信区间，然后按区间位置判定：</p>
+
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>置信区间位置</th><th>统计含义</th><th>操作含义</th></tr></thead>
+      <tbody>
+        <tr><td>完全位于零轴上方或下方</td><td>考虑估计误差后，长期趋势仍显著强于噪声</td><td>当前资产运行在趋势中</td></tr>
+        <tr><td>跨越零轴</td><td>趋势强度不足以覆盖估计偏差</td><td>可能是噪声诱发的虚假波动，不做趋势</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>3.5 报告落地的完整判定流程（背这五步）</h3>
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>步骤</th><th>做法</th><th>关键参数</th></tr></thead>
+      <tbody>
+        <tr><td>① 定窗口</td><td>用 30 日 Kaufman 效率比动态调整 GARCH 建模窗口</td><td class="num">21 ~ 250 交易日</td></tr>
+        <tr><td>② 处理离群值</td><td>MAD 修正 zscore 识别脉冲行情；用 Huber 鲁棒回归拟合价格趋势线并替换异常点</td><td class="num">MAD 阈值</td></tr>
+        <tr><td>③ 估参数</td><td>GARCH 建模后重采样 1,000 次，构建 TSI 的 95% 置信区间；同时取 ρ 的 t 统计量与 σ 点估计</td><td class="num">1,000 次</td></tr>
+        <tr><td>④ 判状态</td><td><strong>连续 10 个交易日</strong>同时满足下列三条件 → 趋势主导，否则震荡</td><td class="num">10 日确认</td></tr>
+        <tr><td>⑤ 定方向</td><td>趋势态：收盘价站上/跌破自适应均线（5–20 日）且方向一致；震荡态：RSI 超买超卖反向</td><td class="num">RSI 14</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>条件 ④ 的三个子条件</strong>（这是面试最容易被逐条问的）：</p>
+  <ol>
+    <li>TSI 置信区间完全在零轴一侧；<em>或</em> |TSI| 点估计的历史分位数 &gt; 50%（TSI 的符号决定多空方向）；</li>
+    <li>ρ &gt; 0；</li>
+    <li>ρ 的 t 统计量 &gt; 1.5，<em>或</em> σ 点估计的历史分位数 &lt; 95%（排除极端波动期）。</li>
+  </ol>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-badge">LAB 03</span><b>状态判定小工具</b><span class="hint">勾选三个条件，看结论怎么翻</span></div>
+    <div class="lab-body">
+      <label style="display:flex;gap:9px;align-items:flex-start;font-size:14.3px;margin:7px 0;cursor:pointer"><input type="checkbox" id="c1" checked style="margin-top:6px;accent-color:#0f6b5f"><span>A. TSI 的 95% 置信区间完全在零轴一侧（或 |TSI| 历史分位 &gt; 50%）</span></label>
+      <label style="display:flex;gap:9px;align-items:flex-start;font-size:14.3px;margin:7px 0;cursor:pointer"><input type="checkbox" id="c2" checked style="margin-top:6px;accent-color:#0f6b5f"><span>B. ρ &gt; 0（短期惯性为顺势）</span></label>
+      <label style="display:flex;gap:9px;align-items:flex-start;font-size:14.3px;margin:7px 0;cursor:pointer"><input type="checkbox" id="c3" checked style="margin-top:6px;accent-color:#0f6b5f"><span>C. ρ 的 t 值 &gt; 1.5，或 σ 处于历史 95 分位以下</span></label>
+      <div class="verdict" id="stateOut" style="margin-top:16px">状态：趋势主导 → 用均线突破做同向；退出用 ATR 移动止损</div>
+      <p style="font-size:12.6px;color:var(--muted);margin:10px 0 0">注意：真实规则还要求上述三条<strong>连续 10 个交易日同时成立</strong>。少一天都不算——这就是“确认窗口”，用来防止状态两周内翻转三次。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section id="s4">
+  <div class="sec-num">SECTION 04</div>
+  <h2>开仓信号：一切趋势指标都是“加权平均”<span class="en">Every linear trend indicator is a weighted sum of past returns</span></h2>
+
+  <p class="lead">这是全文最“解气”的一节：它告诉你均线、动量、MACD、卡尔曼滤波没有本质区别，只是<strong>权重怎么分配</strong>不同。</p>
+
+  <div class="formula">
+    <span class="lbl">任意线性趋势信号，都可以写成过去单期收益的加权和（Levine &amp; Pedersen, 2016）</span>
+    S<sub>t</sub> = Σ<sub>s=1..L</sub> c<sub>s</sub> · δ<sub>t−s</sub><br>
+    <span class="lbl">c<sub>s</sub> = 第 s 期滞后收益的权重；δ = 单期价格变动。指标的性质完全由 c<sub>s</sub> 的形状决定</span>
+  </div>
+
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>权重结构</th><th>策略含义</th><th>典型指标</th></tr></thead>
+      <tbody>
+        <tr><td>c<sub>s</sub> 全为正</td><td><strong>动量逻辑</strong>：过去涨→信号为正，押注延续</td><td>时序动量、均线</td></tr>
+        <tr><td>c<sub>s</sub> 全为负</td><td><strong>反转逻辑</strong>：过去涨→信号为负，押注均值回归</td><td>反转因子</td></tr>
+        <tr><td>c<sub>s</sub> 正负交替</td><td><strong>加速度逻辑</strong>：捕捉趋势的二阶变化或频域特征</td><td>MACD（近正远负）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box idea">
+    <div class="b-title">这句话为什么重要</div>
+    <p>因为从此以后，你选指标不再是“这个指标名字听起来厉害”，而是<strong>先问自己：当前市场状态下，我需要什么形状的权重？</strong>震荡市要长窗口、权重均匀（以时间换空间）；趋势市要短窗口、权重前置（对近期信息敏感）。</p>
+  </div>
+
+  <h3>4.1 亲手看权重长什么样</h3>
+  <p>下面四个标签对应四类经典指标。横轴是“滞后天数”（左边是最近，右边是最久以前），纵轴是权重。<strong>正柱＝助推做多，负柱＝拖后腿</strong>。</p>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-badge">LAB 04</span><b>指标 = 权重分布</b><span class="hint">点击切换 · 纵轴为归一化权重</span></div>
+    <div class="lab-body">
+      <div class="tabs" id="wTabs">
+        <button data-k="mom" class="on">时序动量（矩形窗）</button>
+        <button data-k="ewma">指数加权 EWMA</button>
+        <button data-k="ma">双均线 5/20（带通）</button>
+        <button data-k="macd">MACD 12/26</button>
+      </div>
+      <div id="wChart"></div>
+      <div class="verdict" id="wNote">矩形窗：过去 20 天每天权重相同。假设“每一天的信息一样重要”，最简单也最迟钝。</div>
+    </div>
+  </div>
+
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>指标</th><th>权重形态</th><th>滤波器类比</th><th>优点 / 缺点</th></tr></thead>
+      <tbody>
+        <tr><td>时序动量（h=20）</td><td>前 20 天等权 1/h，其余为 0</td><td>矩形窗（低通）</td><td>简单稳健；但对新信息反应慢</td></tr>
+        <tr><td>EWMA</td><td>c<sub>s</sub> ∝ (1−α)<sup>s−1</sup>，指数衰减</td><td>一阶低通</td><td>近期信息权重高，符合信息扩散；但换手更高</td></tr>
+        <tr><td>双均线 5/20</td><td>快线窗口 +，快线外慢线内 −</td><td><strong>带通滤波</strong></td><td>对趋势启动/加速更敏锐；震荡市易反复</td></tr>
+        <tr><td>MACD 12/26</td><td>近正远负交替</td><td>带通（差分）</td><td>捕捉加速度而非单纯方向</td></tr>
+        <tr><td>HP / 卡尔曼</td><td>权重动态自适应</td><td>自适应滤波</td><td>噪声大时自动降权最新数据，抗噪更好；实现复杂</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>报告对卡尔曼的补充很关键：它根据预测误差的协方差调整权重——<strong>噪声大 → 误差大 → 增益下降 → 自动降低对最新价格的信任</strong>。这正好是“震荡市少信眼前”的数学实现。</p>
+
+  <h3>4.2 第二层：去量纲</h3>
+  <p>第一层输出的是带价格量纲的连续值，不同品种之间不可比（黄金 700 元和国债 120 元的“涨 2 元”完全不是一件事）。所以要归一化：</p>
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>方法</th><th>做法</th><th>解决的问题</th></tr></thead>
+      <tbody>
+        <tr><td>RSI（默认 14 日）</td><td>正收益之和 ÷ 收益绝对值之和，映射到 [0,100]</td><td>把动量强度压成统一刻度，便于设 70/30 阈值</td></tr>
+        <tr><td>zscore</td><td>时序动量 ÷ 价格标准差 σ<sub>t</sub></td><td>单位风险下的信号强度；布林带是其变体</td></tr>
+        <tr><td>乖离率</td><td>价格相对自身趋势的偏离（近大远小权重）</td><td>衡量“离趋势线多远算极端”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>4.3 第三层：融合</h3>
+  <p>单一指标必然在某类状态下失效，所以实战用融合：<strong>多指标共振</strong>（同一指标多窗口 / 多个指标少数服从多数）或<strong>机器学习</strong>（学习不同状态下的自适应权重）。报告提醒：选指标的依据不是流行度，而是<strong>权重分布与当前 (μ, ρ, σ) 的契合度</strong>。</p>
+</section>
+
+<!-- ============ S5 ============ -->
+<section id="s5">
+  <div class="sec-num">SECTION 05</div>
+  <h2>退出机制：四层滤网，决定策略生死<span class="en">Exit design: cut losses, let profits run</span></h2>
+
+  <p class="lead">趋势策略的收益分布是<strong>大量小额亏损 + 少数大额盈利</strong>。入场负责捕捉右尾（正偏度），退出负责不让小额试错变成左尾灾难。</p>
+
+  <div class="box quote">
+    <div class="b-title">原文怎么说</div>
+    <p class="q">“在 CTA 策略中，入场信号主要负责捕捉资产收益率的正偏度，而退出机制承担着防止让小额试错放大为左尾风险的核心职能。”</p>
+  </div>
+
+  <div class="cards">
+    <div class="card"><span class="n">LAYER 1</span><h5>技术性止损</h5><p>按价格触发。固定百分比 / ATR 静态 / ATR 移动。负责“截断亏损”。</p></div>
+    <div class="card"><span class="n">LAYER 2</span><h5>逻辑性证伪</h5><p>开仓逻辑逆转就主动离场，不等价格触及止损。负责“不跟错误的判断纠缠”。</p></div>
+    <div class="card"><span class="n">LAYER 3</span><h5>时间性强制退出</h5><p>窗口内没兑现就退，释放资金的机会成本。负责“不占着仓位不干活”。</p></div>
+    <div class="card"><span class="n">LAYER 4</span><h5>系统性全局风控</h5><p>流动性、相关性、目标波动率、压力测试、硬熔断。负责“系统性危机下保命”。</p></div>
+  </div>
+
+  <h3>5.1 三种技术止损的取舍</h3>
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>方式</th><th>规则</th><th>问题 / 适用</th></tr></thead>
+      <tbody>
+        <tr><td>固定百分比</td><td>回撤 10% 强制离场</td><td>忽略异方差：低波动时 10% 已是趋势瓦解，高波动时 10% 只是日常噪声 → 高波动市频繁被打，低波动市反应迟钝</td></tr>
+        <tr><td>ATR 静态止损</td><td>入场价 ± k×ATR，止损位随 ATR 每日调整</td><td>波动放大自动放宽（抗噪），波动收缩自动收紧（灵敏）。k 一般 ≤5，高波资产 k 更大</td></tr>
+        <tr><td>ATR 移动止损（吊灯）</td><td>止损位设为持仓期最高价下方 k×ATR，<strong>只上移不下移</strong></td><td>能保护浮盈，在反转初期锁定大部分利润——趋势策略的标配</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="formula">
+    <span class="lbl">ATR 的原料：真实波幅 TR（同时含日内与隔夜）</span>
+    TR<sub>t</sub> = max( H<sub>t</sub>−L<sub>t</sub>, |H<sub>t</sub>−C<sub>t−1</sub>|, |L<sub>t</sub>−C<sub>t−1</sub>| )<br>
+    ATR<sub>t</sub> = MA<sub>14</sub>(TR)<br><br>
+    <span class="lbl">多单的吊灯止损（空单对称）</span>
+    Stop<sub>t</sub> = max<sub>持仓期间</sub>(C) − k · ATR<sub>t</sub>&nbsp;&nbsp;&nbsp;&nbsp;且 Stop 只允许上升
+  </div>
+
+  <h3>5.2 亲手感受 k 值的作用</h3>
+  <p>k 是“给多少呼吸空间”。太小，趋势中的正常回调就把你打出去；太大，反转时把利润全吐回去。拖动滑杆看离场点和最终收益怎么变——<strong>这是全页最值得玩五分钟的地方</strong>。</p>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-badge">LAB 05</span><b>ATR 移动止损模拟（吊灯止损）</b><span class="hint">先上涨后反转的合成行情 · 第 10 日入场</span></div>
+    <div class="lab-body">
+      <canvas id="stopcv" height="300"></canvas>
+      <div class="controls">
+        <div class="ctrl"><label>k（ATR 风险乘数）<b id="vK">3.0</b></label><input type="range" id="rK" min="1" max="6" step="0.5" value="3"></div>
+      </div>
+      <div class="readout">
+        <div><span>入场价</span><b id="oEntry">—</b></div>
+        <div><span>离场价</span><b id="oExit">—</b></div>
+        <div><span>本笔收益</span><b id="oRet">—</b></div>
+        <div><span>持有天数</span><b id="oDays">—</b></div>
+        <div><span>最大浮盈回吐</span><b id="oGive">—</b></div>
+      </div>
+      <div class="verdict" id="kNote">k=3.0：能扛住一次正常回调，反转时在跌破止损后一日离场。</div>
+    </div>
+  </div>
+
+  <div class="box warn">
+    <div class="b-title">实验室的简化（别当成回测）</div>
+    <p>ATR 在这里用滚动波动率近似，行情是合成路径而非真实数据，也没有滑点与手续费。它只演示“止损只上移”这一条机制。报告真实回测里，k 取 1.5~4.5，且 ATR 的 TR 序列要做 5%~95% 分位数截断，防止单日极端波动把止损一次性拉宽。</p>
+  </div>
+
+  <h3>5.3 逻辑证伪与确认窗口</h3>
+  <p>价格没到止损位，但开仓逻辑已经变了（例如原本判为趋势，现在状态切到震荡）——这时应该减仓或离场。为防止逻辑信号频繁翻转，报告引入<strong>确认窗口</strong>：失效信号持续多日才确认为真切换。数学上这等于对信号做<strong>低通滤波</strong>：牺牲一点及时性，换掉大量无效交易。</p>
+
+  <h3>5.4 时间退出与全局风控</h3>
+  <p><strong>时间退出</strong>解决机会成本：多资产组合里，资金锁在一个迟迟不涨的品种上，等于放弃了别的品种的趋势。<strong>全局风控</strong>五件套：</p>
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>工具</th><th>做什么</th><th>防的是什么</th></tr></thead>
+      <tbody>
+        <tr><td>流动性预警</td><td>对央行/资金/市场三层流动性打分</td><td>风险资产集体大跌前的流动性枯竭</td></tr>
+        <tr><td>相关性监控</td><td>跟踪资产间相关性是否趋同（如风险分散系数）</td><td>危机时分散化失效</td></tr>
+        <tr><td>目标波动率</td><td>按实时波动动态调杠杆</td><td>波动扩张时敞口失控</td></tr>
+        <tr><td>极端行情压力测试</td><td>剔除极端日后看卡玛比是否崩塌</td><td>策略过度依赖少数脉冲行情</td></tr>
+        <tr><td>全账户硬熔断</td><td>累计回撤触线→暂停新开仓、进观察期</td><td>无法应对的尾部风险导致负反馈</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box idea">
+    <div class="b-title">这一节最重要的一句设计原则</div>
+    <p><strong>退出机制要和策略的性格匹配。</strong>趋势交易是低胜率高赔率，用 ATR 移动止损（右侧、放长盈利）；震荡反转是高胜率低赔率，用逻辑止损（RSI 回落即走，左侧、落袋为安）。用错了会互相打架——这条在 §6 的实证里被直接验证。</p>
+  </div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section id="s6">
+  <div class="sec-num">SECTION 06</div>
+  <h2>实证：三个 ETF 的六年检验<span class="en">Empirical setup and what the numbers mean</span></h2>
+
+  <p class="lead">报告自称“实证框架相对简单”，但它的设计与结论解读有几处很值得学——尤其是“用什么指标评价策略”这一条。</p>
+
+  <h3>6.1 标的与参数</h3>
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>标的</th><th>代码</th><th>资产属性</th><th>ATR 止损 k</th></tr></thead>
+      <tbody>
+        <tr><td>沪深300ETF</td><td class="num">510300.SH</td><td>高波动、宏观与情绪双驱动</td><td class="num">4.5</td></tr>
+        <tr><td>黄金ETF</td><td class="num">518880.SH</td><td>长周期趋势 + 避险属性</td><td class="num">3.0</td></tr>
+        <tr><td>国债ETF</td><td class="num">511010.SH</td><td>高自相关、低波动、信噪比高</td><td class="num">1.5</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:14.5px;color:var(--muted)">k 的顺序正好体现了“高波资产给更多呼吸空间”：股票 4.5 &gt; 黄金 3.0 &gt; 国债 1.5。</p>
+
+  <h3>6.2 交易规则（细节决定回测是否可信）</h3>
+  <ul>
+    <li><strong>区间</strong>：2020-01 至 2026-05，覆盖疫情冲击、地缘冲突、A 股与国债牛熊切换、贵金属主升浪。</li>
+    <li><strong>双向</strong>：允许多空。</li>
+    <li><strong>空仓时</strong>：只看入场信号，<em>t</em> 日收盘出信号 → <em>t+1</em> 开盘价市价单成交。</li>
+    <li><strong>持仓时</strong>：只看止损，<em>t</em> 日盘前算好止损价，日内用分钟线监控；某根分钟线最低价跌破止损位即平仓（含滑点）；若开盘直接跳空击穿，则按开盘价加滑点平仓。这叫<strong>条件单模式</strong>。</li>
+    <li><strong>成本</strong>：单次交易滑点 + 费用 = <strong>1‰</strong>。</li>
+  </ul>
+  <p>注意这个设计上的“洁癖”：<strong>空仓时不看离场、持仓时不看入场</strong>，一天只做一个决策，避免同一根 K 线上反复进出（这是很多回测虚高的来源）。</p>
+
+  <h3>6.3 四个对照实验说明了什么</h3>
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>对照</th><th>做法</th><th>想证明</th></tr></thead>
+      <tbody>
+        <tr><td>对照 1</td><td>假设永远是趋势 → 只用均线突破</td><td rowspan="2">单用一类策略，都不如“先识别状态再选策略”</td></tr>
+        <tr><td>对照 2</td><td>假设永远是震荡 → 只用 RSI 反转</td></tr>
+        <tr><td>对照 3</td><td>完整策略但去掉 ATR 移动止损</td><td>退出机制本身有独立贡献</td></tr>
+        <tr><td>完整</td><td>状态识别 + 分层信号 + 分层退出</td><td>基准</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>报告给出的三条结论值得逐字理解：</p>
+  <ol>
+    <li>沪深300 与黄金上，<strong>趋势突破低胜率高赔率、RSI 反转高胜率低赔率</strong>，两者互补；合起来优于任一单独使用。</li>
+    <li>国债 ETF 因票息长期向上，<strong>反转策略不适用</strong>（做空一个长期上涨的资产很难受），但与趋势结合后仍优于单用趋势。</li>
+    <li>ATR 移动止损不只是止损，它还<strong>弥补状态识别的时滞</strong>：一段小级别上涨后跟着震荡，模型仍误判为趋势向上，此时靠移动止损把资金撤出来。</li>
+  </ol>
+
+  <div class="box idea">
+    <div class="b-title">全文最反直觉的一句：评价标准不是打败基准</div>
+    <p>报告明确说：<strong>时序 CTA 是绝对收益导向，评价标准是能否提升卡玛比</strong>（年化收益 ÷ 最大回撤），而不是能否跑赢基准。原因很实在——国债 ETF 这类资产长期向上，你一旦在正常波动中被“甩下车”，反而容易长期落后基准。追求“跑赢”会逼你做不该做的交易。</p>
+  </div>
+
+  <div class="box warn">
+    <div class="b-title">读实证必须自己加的三句限制</div>
+    <ul style="margin-bottom:0">
+      <li>样本只有 <strong>6 年、3 个标的</strong>，且是作者选定的（存在选择性偏差的可能）；</li>
+      <li>参数（k=4.5/3.0/1.5、RSI 70/30、10 日确认）都是<strong>人为设定</strong>，没有做参数敏感性网格；</li>
+      <li>报告自己承认这是“方法论综述”，实证是<strong>示意性验证</strong>，不是产品级回测。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section id="s7">
+  <div class="sec-num">SECTION 07</div>
+  <h2>术语表：读这篇报告需要的 20 个词</h2>
+  <div class="gloss">
+    <div><b>AR(1)</b>一阶自回归：用昨天的值解释今天的值。<em>本文的价格生成模型</em></div>
+    <div><b>μ（mu）</b>长期趋势/期望收益。<em>河床坡度</em></div>
+    <div><b>ρ（rho）</b>一阶自回归系数，衡量惯性。<em>ρ&gt;0 顺势，ρ&lt;0 反转</em></div>
+    <div><b>σ（sigma）</b>残差标准差，即背景噪声。<em>水面上的浪</em></div>
+    <div><b>TSI</b>趋势信噪比 = μ/σ。<em>单位风险下的趋势辨识度</em></div>
+    <div><b>GARCH(1,1)</b>让方差随时间变化的模型，含 ARCH 与 GARCH 两项。<em>处理波动率聚集</em></div>
+    <div><b>异方差</b>波动幅度随时间变化，不恒定。<em>固定百分比止损失效的根因</em></div>
+    <div><b>Bootstrap</b>有放回重采样，用来估计参数的分布与置信区间。<em>本文用 1,000 次</em></div>
+    <div><b>置信区间</b>参数可能取值的范围。跨零＝不显著。<em>判断趋势是否真实存在</em></div>
+    <div><b>Kaufman ER</b>效率比 = 净位移 ÷ 总路程。<em>决定自适应窗口长短</em></div>
+    <div><b>Huber 回归</b>对离群点不敏感的鲁棒回归。<em>拟合价格趋势线</em></div>
+    <div><b>低通/带通滤波</b>保留慢变成分 / 只保留某频段。<em>均线=低通，双均线=带通</em></div>
+    <div><b>EWMA</b>指数加权移动平均，近期权重更高。<em>α=2/(span+1)</em></div>
+    <div><b>RSI</b>相对强弱指标，0–100，默认 14 日。<em>&gt;70 超买，&lt;30 超卖</em></div>
+    <div><b>zscore</b>（值−均值）÷标准差，去量纲。<em>布林带的基础</em></div>
+    <div><b>ATR</b>平均真实波幅，默认 14 日。<em>止损距离的度量衡</em></div>
+    <div><b>吊灯止损</b>止损位跟着最高价上移，只升不降。<em>保护浮盈</em></div>
+    <div><b>卡玛比</b>年化收益 ÷ 最大回撤。<em>本文推荐的评价标准</em></div>
+    <div><b>胜率 / 赔率</b>赚钱次数占比 / 平均盈亏比。<em>趋势策略低胜率高赔率</em></div>
+    <div><b>左尾风险</b>极端亏损发生的可能性。<em>退出机制要防的东西</em></div>
+  </div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section id="s8">
+  <div class="sec-num">SECTION 08</div>
+  <h2>自测：8 题检验你是否真的读懂了</h2>
+  <p>点选项即时判分。答错不要紧，看解析比答对更重要。</p>
+  <div id="quizWrap"></div>
+  <div class="score" id="scoreLine">已答 0 / 8 · 正确 0</div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section id="s9">
+  <div class="sec-num">SECTION 09</div>
+  <h2>一页速记（考前/面试前看这个）</h2>
+  <div class="box">
+    <p><strong>1. 三元分解</strong>：r<sub>t</sub> = μ(1−ρ) + ρr<sub>t−1</sub> + ε<sub>t</sub>。μ 是坡度、ρ 是惯性、σ 是浪。同样 μ，可交易性可能天差地别。</p>
+    <p><strong>2. TSI = μ/σ</strong>；累积信噪比 = (μ/σ)√T —— <strong>信号线性增长、噪声平方根增长</strong>，这就是“以时间换空间”。</p>
+    <p><strong>3. 估计</strong>：OLS 怕异方差 → 用 GARCH；窗口用 Kaufman ER 自适应（21–250 日）；状态判定用 bootstrap 置信区间 + ρ&gt;0 + t 值/σ 分位，且<strong>连续 10 日确认</strong>。</p>
+    <p><strong>4. 信号三层</strong>：线性滤波（动量/EWMA/双均线/卡尔曼，本质都是 c<sub>s</sub> 权重）→ 去量纲（RSI/zscore/乖离）→ 融合（共振/机器学习）。</p>
+    <p><strong>5. 退出四层</strong>：技术止损（ATR 吊灯只上移）→ 逻辑证伪（含确认窗口=低通）→ 时间退出（机会成本）→ 全局风控（流动性/相关性/目标波动/压测/熔断）。</p>
+    <p style="margin-bottom:0"><strong>6. 结论</strong>：趋势与震荡策略互补；时序 CTA 是<strong>牛市策略</strong>，与截面策略低相关；评价看<strong>卡玛比</strong>而非跑赢基准。</p>
+  </div>
+</section>
+
+<footer>
+  <p><strong>原文出处</strong>：华泰证券金融工程《时序 CTA 方法论综述：市场状态、开仓信号与退出机制》，徐特 S0570523050005、何康 S0570520080004，2026-06-10。<br>
+  本页为个人学习整理，不包含研报原文，所有观点与数据均归原作者及机构所有；解读与比喻为二次编写，可能与原文表述有出入，以原文为准。</p>
+  <p>风险提示：本文涉及的所有方法均为历史规律总结，历史规律可能失效；不构成任何投资建议。</p>
+</footer>
+
+</main>
+
+<aside class="toc">
+  <div class="toc-h">目录</div>
+  <a href="#s0">00 读前须知</a>
+  <a href="#s1">01 三元分解 μ ρ σ</a>
+  <a href="#s2">02 趋势信噪比 TSI</a>
+  <a href="#s3">03 参数估计与状态识别</a>
+  <a href="#s4">04 开仓信号三层</a>
+  <a href="#s5">05 退出机制四层</a>
+  <a href="#s6">06 实证与结论</a>
+  <a href="#s7">07 术语表</a>
+  <a href="#s8">08 自测 8 题</a>
+  <a href="#s9">09 一页速记</a>
+</aside>
+</div>
+
+<script>
+/* ================= 通用 ================= */
+const CSS = getComputedStyle(document.documentElement);
+const C = {
+  accent: '#0f6b5f', accent2:'#14867a', ink:'#1c1c1a', muted:'#6d6b62',
+  line:'#e3ded2', warn:'#a8552c', gold:'#8a6d2f', grid:'#eae5d9'
+};
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gauss(rnd){let u=Math.max(rnd(),1e-9),v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function fitCanvas(cv){
+  // 逻辑高度只读一次并锁进 dataset，避免设置 width/height 属性后布局高度被重置
+  if(!cv.dataset.h) cv.dataset.h = cv.getAttribute('height') || '280';
+  const lh = parseFloat(cv.dataset.h) || 280;
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(cv.getBoundingClientRect().width || 300, 280);
+  cv.style.height = lh + 'px';
+  cv.width = Math.round(w*dpr);
+  cv.height = Math.round(lh*dpr);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,lh);
+  return {ctx,w,h:lh};
+}
+function drawGrid(ctx,w,h,pad,rows=4,cols=6){
+  ctx.strokeStyle='#eae5d9'; ctx.lineWidth=1;
+  for(let i=0;i<=rows;i++){
+    const y = pad.t + (h-pad.t-pad.b)*i/rows;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+  }
+  for(let i=0;i<=cols;i++){
+    const x = pad.l + (w-pad.l-pad.r)*i/cols;
+    ctx.beginPath(); ctx.moveTo(x,pad.t); ctx.lineTo(x,h-pad.b); ctx.stroke();
+  }
+}
+
+/* ================= LAB 01 : AR(1) ================= */
+(function(){
+  const cv=document.getElementById('ar1cv');
+  const rMu=document.getElementById('rMu'), rRho=document.getElementById('rRho'), rSig=document.getElementById('rSig');
+  const vMu=document.getElementById('vMu'), vRho=document.getElementById('vRho'), vSig=document.getElementById('vSig');
+  const outAnn=document.getElementById('outAnn'), outTsi=document.getElementById('outTsi'), outCum=document.getElementById('outCum');
+  const verdict=document.getElementById('ar1Verdict');
+
+  function simulate(mu,rho,sigma,n){
+    const rnd=mulberry32(20260610);
+    let r=0, p=100; const path=[p];
+    const c=mu*(1-rho);
+    for(let i=0;i<n;i++){
+      r = c + rho*r + sigma*gauss(rnd);
+      p *= (1+r);
+      path.push(p);
+    }
+    return path;
+  }
+
+  function draw(){
+    const mu=parseFloat(rMu.value), rho=parseFloat(rRho.value), sigma=parseFloat(rSig.value);
+    vMu.textContent=(mu*100).toFixed(2)+'%';
+    vRho.textContent=rho.toFixed(2);
+    vSig.textContent=(sigma*100).toFixed(2);
+    outAnn.textContent=(mu*252*100).toFixed(0)+'%';
+    outTsi.textContent=(mu/sigma).toFixed(2);
+    outCum.textContent=((mu/sigma)*Math.sqrt(20)).toFixed(2);
+
+    let cls='', txt='';
+    if(rho>=0.15 && mu/sigma>=0.1){cls='';txt='示意判定：趋势主导 —— 长短期共振，趋势追踪的舒适区';}
+    else if(rho<=-0.15){cls='chop';txt='示意判定：短期反转中的震荡 —— 大方向或许向上，但会陷入「止损—开仓」循环';}
+    else {cls='chop';txt='示意判定：噪声淹没趋势 —— 突破信号多半在拟合噪声';}
+    verdict.className='verdict '+cls; verdict.textContent=txt;
+
+    const path=simulate(mu,rho,sigma,479);
+    const {ctx,w,h}=fitCanvas(cv);
+    const pad={l:46,r:14,t:16,b:26};
+    drawGrid(ctx,w,h,pad);
+
+    let lo=Infinity, hi=-Infinity;
+    for(const v of path){ if(v<lo)lo=v; if(v>hi)hi=v; }
+    const span=Math.max(hi-lo,1e-6); lo-=span*0.08; hi+=span*0.08;
+    const X=i=>pad.l+(w-pad.l-pad.r)*i/(path.length-1);
+    const Y=v=>h-pad.b-(h-pad.t-pad.b)*(v-lo)/(hi-lo);
+
+    // 面积
+    const grad=ctx.createLinearGradient(0,pad.t,0,h-pad.b);
+    grad.addColorStop(0,'rgba(15,107,95,.16)');
+    grad.addColorStop(1,'rgba(15,107,95,0)');
+    ctx.beginPath(); ctx.moveTo(X(0),Y(path[0]));
+    for(let i=1;i<path.length;i++) ctx.lineTo(X(i),Y(path[i]));
+    ctx.lineTo(X(path.length-1),h-pad.b); ctx.lineTo(X(0),h-pad.b); ctx.closePath();
+    ctx.fillStyle=grad; ctx.fill();
+
+    // 价格线
+    ctx.beginPath(); ctx.moveTo(X(0),Y(path[0]));
+    for(let i=1;i<path.length;i++) ctx.lineTo(X(i),Y(path[i]));
+    ctx.strokeStyle=C.accent; ctx.lineWidth=1.6; ctx.stroke();
+
+    // 终点标记
+    const last=path[path.length-1];
+    ctx.beginPath(); ctx.arc(X(path.length-1),Y(last),3.2,0,Math.PI*2);
+    ctx.fillStyle=C.accent; ctx.fill();
+
+    // 轴标签
+    ctx.fillStyle=C.muted; ctx.font='11px "SF Mono",Consolas,monospace';
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    for(let i=0;i<=4;i++){
+      const v=lo+(hi-lo)*i/4;
+      ctx.fillText(v.toFixed(0),pad.l-7,h-pad.b-(h-pad.t-pad.b)*i/4);
+    }
+    ctx.textAlign='left'; ctx.fillStyle=C.muted;
+    ctx.fillText('第 0 日',pad.l,h-9);
+    ctx.textAlign='right'; ctx.fillText('第 480 日',w-pad.r,h-9);
+    ctx.textAlign='left';
+    ctx.fillStyle='rgba(28,28,26,.55)';
+    ctx.font='11.5px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('模拟价格（起点 100）',pad.l+4,pad.t+11);
+  }
+
+  [rMu,rRho,rSig].forEach(el=>el.addEventListener('input',draw));
+  document.querySelectorAll('#ar1Presets button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('#ar1Presets button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      rMu.value=b.dataset.mu; rRho.value=b.dataset.rho; rSig.value=b.dataset.sigma;
+      draw();
+    });
+  });
+  window.addEventListener('resize',()=>{clearTimeout(window.__ar1t);window.__ar1t=setTimeout(draw,150);});
+  draw();
+})();
+
+/* ================= LAB 02 : SNR chart (SVG) ================= */
+(function(){
+  const host=document.getElementById('snrChart');
+  const mu=0.001, sigma=0.01;
+  const W=680, H=260, pad={l:48,r:52,t:22,b:34};
+  const Tmin=21, Tmax=250;
+  const X=t=>pad.l+(W-pad.l-pad.r)*(t-Tmin)/(Tmax-Tmin);
+  const vmax=0.28;
+  const Y=v=>H-pad.b-(H-pad.t-pad.b)*(v/vmax);
+
+  let trend='', noise='', pts=[];
+  for(let t=Tmin;t<=Tmax;t+=2){
+    const a=mu*t, b=sigma*Math.sqrt(t);
+    pts.push({t,a,b});
+  }
+  trend=pts.map((p,i)=>(i?'L':'M')+X(p.t).toFixed(1)+' '+Y(p.a).toFixed(1)).join(' ');
+  noise=pts.map((p,i)=>(i?'L':'M')+X(p.t).toFixed(1)+' '+Y(p.b).toFixed(1)).join(' ');
+
+  const Tstar=(sigma/mu)*(sigma/mu); // 100
+  let grid='';
+  for(let i=0;i<=4;i++){
+    const y=pad.t+(H-pad.t-pad.b)*i/4;
+    grid+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#eae5d9"/>`;
+    grid+=`<text x="${pad.l-8}" y="${y+4}" text-anchor="end" font-size="10.5" fill="#6d6b62" font-family="SF Mono,Consolas,monospace">${(vmax*(1-i/4)*100).toFixed(0)}%</text>`;
+  }
+  let ticks='';
+  [21,50,100,150,200,250].forEach(t=>{
+    ticks+=`<text x="${X(t)}" y="${H-pad.b+18}" text-anchor="middle" font-size="10.5" fill="#6d6b62" font-family="SF Mono,Consolas,monospace">${t}</text>`;
+  });
+
+  const svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="auto" role="img" aria-label="累积趋势与累积噪声随时间变化">
+    ${grid}
+    ${ticks}
+    <text x="${X(Tstar)}" y="${H-pad.b+30}" text-anchor="middle" font-size="10" fill="#a8552c">T*=100 打平点</text>
+    <line x1="${X(Tstar)}" y1="${pad.t}" x2="${X(Tstar)}" y2="${H-pad.b}" stroke="#a8552c" stroke-dasharray="4 4" stroke-width="1.2"/>
+    <path d="${noise}" fill="none" stroke="#a8552c" stroke-width="2" stroke-dasharray="6 4"/>
+    <path d="${trend}" fill="none" stroke="#0f6b5f" stroke-width="2.4"/>
+    <circle cx="${X(250)}" cy="${Y(mu*250)}" r="3.6" fill="#0f6b5f"/>
+    <circle cx="${X(250)}" cy="${Y(sigma*Math.sqrt(250))}" r="3.6" fill="#a8552c"/>
+    <text x="${X(250)-6}" y="${Y(mu*250)+16}" text-anchor="end" font-size="11" fill="#0f6b5f" font-weight="600">累积趋势 μT（线性）</text>
+    <text x="${X(160)}" y="${Y(sigma*Math.sqrt(160))-10}" font-size="11" fill="#a8552c" font-weight="600">累积噪声 σ√T（平方根）</text>
+    <text x="${pad.l}" y="${pad.t-6}" font-size="10.5" fill="#6d6b62">累积幅度占价格的比例</text>
+    <text x="${W-pad.r}" y="${H-4}" text-anchor="end" font-size="10.5" fill="#6d6b62">窗口长度 T（交易日）</text>
+  </svg>`;
+  host.innerHTML=svg;
+
+  document.getElementById('snr21').textContent=((mu/sigma)*Math.sqrt(21)).toFixed(2);
+  document.getElementById('snr100').textContent=((mu/sigma)*Math.sqrt(100)).toFixed(2);
+  document.getElementById('snr250').textContent=((mu/sigma)*Math.sqrt(250)).toFixed(2);
+})();
+
+/* ================= LAB 03 : state tool ================= */
+(function(){
+  const els=['c1','c2','c3'].map(id=>document.getElementById(id));
+  const out=document.getElementById('stateOut');
+  function upd(){
+    const ok=els.every(e=>e.checked);
+    if(ok){
+      out.className='verdict';
+      out.innerHTML='状态：<strong>趋势主导</strong> → 用自适应均线（5–20 日）突破做同向；退出用 ATR 移动止损（k 按资产波动定）。';
+    }else{
+      out.className='verdict chop';
+      out.innerHTML='状态：<strong>震荡</strong> → 改用 14 日 RSI 反转：&gt;70 做空、&lt;30 做多；退出用逻辑止损（RSI 回落到 60 / 回升到 40 平仓）。';
+    }
+  }
+  els.forEach(e=>e.addEventListener('change',upd));
+  upd();
+})();
+
+/* ================= LAB 04 : weights ================= */
+(function(){
+  const L=60;
+  const kinds={
+    mom:{name:'时序动量（矩形窗）',note:'矩形窗：过去 20 天每天权重相同。假设「每一天的信息一样重要」，最简单也最迟钝。'},
+    ewma:{name:'指数加权 EWMA',note:'指数衰减：越近的收益权重越高，符合信息扩散。代价是换手更高、更容易被短期波动带偏。'},
+    ma:{name:'双均线 5/20（带通）',note:'带通：快线窗口内为正、快线外慢线内为负。它在比较「近期趋势 vs 远期趋势」的张力，对启动更敏锐，代价是震荡市反复。'},
+    macd:{name:'MACD 12/26',note:'近正远负交替：捕捉的不是方向本身，而是趋势的加速度（二阶变化），所以它会先于均线转向。'}
+  };
+  function weights(kind){
+    const w=[];
+    if(kind==='mom'){const h=20;for(let s=1;s<=L;s++)w.push(s<=h?1/h:0);}
+    else if(kind==='ewma'){const a=2/21;let t=0;const raw=[];for(let s=1;s<=L;s++){const v=Math.pow(1-a,s-1);raw.push(v);t+=v;}raw.forEach(v=>w.push(v/t));}
+    else if(kind==='ma'){const f=5,sl=20;for(let s=1;s<=L;s++)w.push(s<=f?1/f:(s<=sl?-1/(sl-f):0));}
+    else{const af=2/13,as=2/27;for(let s=1;s<=L;s++)w.push(Math.pow(1-af,s-1)-Math.pow(1-as,s-1));}
+    const mx=Math.max(...w.map(v=>Math.abs(v)))||1;
+    return w.map(v=>v/mx);
+  }
+  const host=document.getElementById('wChart');
+  const note=document.getElementById('wNote');
+  function render(kind){
+    const w=weights(kind);
+    const W=680,H=240,pad={l:44,r:16,t:18,b:34};
+    const X=s=>pad.l+(W-pad.l-pad.r)*(s-1)/(L-1);
+    const zero=pad.t+(H-pad.t-pad.b)/2;
+    const scale=(H-pad.t-pad.b)/2*0.86;
+    let grid='';
+    for(let i=0;i<=4;i++){
+      const y=pad.t+(H-pad.t-pad.b)*i/4;
+      grid+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="${i===2?'#cfc8b8':'#eae5d9'}"/>`;
+    }
+    grid+=`<text x="${pad.l-8}" y="${zero+4}" text-anchor="end" font-size="10.5" fill="#6d6b62">0</text>`;
+    grid+=`<text x="${pad.l-8}" y="${pad.t+10}" text-anchor="end" font-size="10.5" fill="#0f6b5f">+</text>`;
+    grid+=`<text x="${pad.l-8}" y="${H-pad.b-2}" text-anchor="end" font-size="10.5" fill="#a8552c">−</text>`;
+
+    const bw=Math.max(2,(W-pad.l-pad.r)/L*0.62);
+    let bars='';
+    w.forEach((v,i)=>{
+      const x=X(i+1), yv=zero-v*scale, hgt=Math.abs(v*scale);
+      const y=Math.min(yv,zero), hh=Math.max(hgt,0.6);
+      const col=v>=0?'#0f6b5f':'#a8552c';
+      bars+=`<rect x="${(x-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${hh.toFixed(1)}" fill="${col}" opacity="${v>=0?0.85:0.7}" rx="1"/>`;
+    });
+    let ticks='';
+    [1,10,20,30,40,50,60].forEach(s=>{
+      ticks+=`<text x="${X(s)}" y="${H-pad.b+18}" text-anchor="middle" font-size="10.5" fill="#6d6b62" font-family="SF Mono,Consolas,monospace">${s}</text>`;
+    });
+    const svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="auto" role="img" aria-label="指标权重分布">
+      ${grid}${bars}${ticks}
+      <text x="${pad.l}" y="${H-6}" font-size="10.5" fill="#6d6b62">← 最近</text>
+      <text x="${W-pad.r}" y="${H-6}" text-anchor="end" font-size="10.5" fill="#6d6b62">滞后天数 … 最久以前 →</text>
+    </svg>`;
+    host.innerHTML=svg;
+    note.textContent=kinds[kind].name+'：'+kinds[kind].note;
+  }
+  document.querySelectorAll('#wTabs button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('#wTabs button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on'); render(b.dataset.k);
+    });
+  });
+  render('mom');
+})();
+
+/* ================= LAB 05 : trailing stop ================= */
+(function(){
+  const cv=document.getElementById('stopcv'), rK=document.getElementById('rK'), vK=document.getElementById('vK');
+  const oEntry=document.getElementById('oEntry'), oExit=document.getElementById('oExit'),
+        oRet=document.getElementById('oRet'), oDays=document.getElementById('oDays'), oGive=document.getElementById('oGive');
+  const note=document.getElementById('kNote');
+
+  function buildPath(){
+    const rnd=mulberry32(4321);
+    let p=100; const path=[];
+    for(let i=0;i<220;i++){
+      const drift = i<150 ? 0.0026 : -0.0052;
+      const vol = i<150 ? 0.0085 : 0.0125;
+      p *= 1 + drift + vol*gauss(rnd);
+      path.push(p);
+    }
+    return path;
+  }
+  const path=buildPath();
+  const N=path.length;
+  const entryIdx=10;
+  // ATR proxy: EMA of |ret|*price*1.5
+  const atr=[]; let ema=null;
+  for(let i=1;i<N;i++){
+    const tr=Math.abs(path[i]-path[i-1])*1.5 + path[i]*0.002;
+    ema = ema===null? tr : ema*0.86 + tr*0.14;
+    atr[i]=ema;
+  }
+
+  function draw(){
+    const k=parseFloat(rK.value); vK.textContent=k.toFixed(1);
+    // simulate stop
+    let peak=-Infinity, stop=null, exitIdx=-1, stopSeries=new Array(N).fill(null), maxFav=0;
+    for(let i=entryIdx;i<N;i++){
+      if(path[i]>peak) peak=path[i];
+      const s=peak - k*(atr[i]||atr[entryIdx]);
+      stop = stop===null? s : Math.max(stop, s);   // 只上移
+      stopSeries[i]=stop;
+      const fav=(peak-path[entryIdx])/path[entryIdx];
+      if(fav>maxFav) maxFav=fav;
+      if(exitIdx<0 && path[i] < stop && i>entryIdx+1){ exitIdx=i; }
+    }
+    if(exitIdx<0) exitIdx=N-1;
+    const entryP=path[entryIdx], exitP=path[exitIdx];
+    const ret=(exitP/entryP-1)*100;
+    const giveBack = maxFav>0 ? (1 - (exitP-entryP)/(peak-entryP>1e-9?peak-entryP:1e-9))*100 : 0;
+
+    oEntry.textContent=entryP.toFixed(2);
+    oExit.textContent=exitP.toFixed(2);
+    oRet.textContent=(ret>=0?'+':'')+ret.toFixed(2)+'%';
+    oRet.style.color = ret>=0?'#0f6b5f':'#a8552c';
+    oDays.textContent=(exitIdx-entryIdx)+' 天';
+    oGive.textContent=(giveBack>0&&peak>entryP? giveBack.toFixed(0):'0')+'%';
+
+    if(k<=1.5) note.textContent='k='+k.toFixed(1)+'：呼吸空间太小，趋势中的一次正常回调就会把你震出场（注意离场有多早）。';
+    else if(k>=5) note.textContent='k='+k.toFixed(1)+'：空间给得很宽，能扛住深回调，但反转后回吐也最多（看「最大浮盈回吐」）。';
+    else note.textContent='k='+k.toFixed(1)+'：在抗噪与保护利润之间取平衡。k 越大越抗噪、离场越晚、回吐越多；k 越小越灵敏、越容易被震出。';
+
+    const {ctx,w,h}=fitCanvas(cv);
+    const pad={l:46,r:16,t:18,b:26};
+    drawGrid(ctx,w,h,pad);
+
+    let lo=Infinity,hi=-Infinity;
+    for(const v of path){if(v<lo)lo=v;if(v>hi)hi=v;}
+    for(const s of stopSeries){if(s&&s<lo)lo=s;if(s&&s>hi)hi=s;}
+    const sp=hi-lo; lo-=sp*.08; hi+=sp*.08;
+    const X=i=>pad.l+(w-pad.l-pad.r)*i/(N-1);
+    const Y=v=>h-pad.b-(h-pad.t-pad.b)*(v-lo)/(hi-lo);
+
+    // 价格
+    ctx.beginPath(); ctx.moveTo(X(0),Y(path[0]));
+    for(let i=1;i<N;i++) ctx.lineTo(X(i),Y(path[i]));
+    ctx.strokeStyle='#2c4a44'; ctx.lineWidth=1.4; ctx.stroke();
+
+    // 止损线
+    ctx.beginPath(); let started=false;
+    for(let i=entryIdx;i<N;i++){
+      if(!stopSeries[i]) continue;
+      if(!started){ctx.moveTo(X(i),Y(stopSeries[i]));started=true;}
+      else ctx.lineTo(X(i),Y(stopSeries[i]));
+    }
+    ctx.strokeStyle=C.warn; ctx.lineWidth=1.8; ctx.setLineDash([5,3]); ctx.stroke(); ctx.setLineDash([]);
+
+    // 止损线下方填充
+    ctx.beginPath(); ctx.moveTo(X(entryIdx),Y(stopSeries[entryIdx]));
+    for(let i=entryIdx;i<N;i++) if(stopSeries[i]) ctx.lineTo(X(i),Y(stopSeries[i]));
+    for(let i=N-1;i>=entryIdx;i--) ctx.lineTo(X(i),h-pad.b);
+    ctx.closePath(); ctx.fillStyle='rgba(168,85,44,.06)'; ctx.fill();
+
+    // 入场 / 离场标记
+    ctx.beginPath(); ctx.arc(X(entryIdx),Y(path[entryIdx]),4,0,Math.PI*2);
+    ctx.fillStyle=C.accent; ctx.fill();
+    ctx.fillStyle=C.accent; ctx.font='11px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('入场',X(entryIdx)+7,Y(path[entryIdx])-8);
+
+    ctx.beginPath(); ctx.arc(X(exitIdx),Y(path[exitIdx]),4.4,0,Math.PI*2);
+    ctx.fillStyle=C.warn; ctx.fill();
+    ctx.fillText('离场',X(exitIdx)+7,Y(path[exitIdx])+15);
+
+    // 价格轴
+    ctx.fillStyle=C.muted; ctx.font='11px "SF Mono",Consolas,monospace'; ctx.textAlign='right';
+    for(let i=0;i<=4;i++){
+      const v=lo+(hi-lo)*i/4;
+      ctx.fillText(v.toFixed(0),pad.l-7,h-pad.b-(h-pad.t-pad.b)*i/4);
+    }
+    ctx.textAlign='left';
+    ctx.fillStyle='rgba(28,28,26,.55)'; ctx.font='11.5px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('价格',pad.l+4,pad.t+11);
+    ctx.fillStyle=C.warn; ctx.fillText('ATR 移动止损位（只上移）',pad.l+52,pad.t+11);
+  }
+  rK.addEventListener('input',draw);
+  window.addEventListener('resize',()=>{clearTimeout(window.__st);window.__st=setTimeout(draw,150);});
+  draw();
+})();
+
+/* ================= QUIZ ================= */
+(function(){
+  const qs=[
+    {q:'报告认为，判断一段趋势“能不能做”的关键是什么？',
+     opts:['长期趋势 μ 的绝对大小','趋势强度相对噪声的比值（信噪比）','最近的涨幅排名','成交量的变化'],
+     a:1, e:'报告反复强调：同样 μ 不为 0，微观结构不同可交易性完全不同。TSI = μ/σ 才是可交易性的度量。'},
+    {q:'为什么“拉长观测窗口”能提高信噪比？',
+     opts:['因为长窗口包含更多历史信息','因为趋势随时间线性累积，而噪声只按平方根增长','因为长窗口能自动剔除异常值','因为长窗口降低了交易成本'],
+     a:1, e:'μT / (σ√T) = (μ/σ)√T。分子线性、分母平方根，所以比值按 √T 改善。这是“以时间换空间”的数学来源。'},
+    {q:'ρ = −0.5 意味着什么？',
+     opts:['市场随机游走','短期反转：昨天涨今天倾向跌','长期趋势为负','波动率极高'],
+     a:1, e:'ρ 是一阶自回归系数。ρ<0 表示短期反转，趋势指标会频繁失效——报告把这类情形统称震荡。'},
+    {q:'报告为什么不用滚动 OLS 直接估参数？',
+     opts:['OLS 计算太慢','OLS 假设同方差，无法应对波动率时变与离群冲击','OLS 不能估 AR(1)','OLS 需要未来数据'],
+     a:1, e:'金融波动具有聚集性，OLS 的同方差假设会在暴跌初期给出失效的趋势估计，所以用 GARCH(1,1) 吸收波动冲击。'},
+    {q:'双均线交叉（5/20）的权重结构属于哪一类？',
+     opts:['低通（全正权重）','带通（快线内正、快线外慢线内负）','纯反转（全负权重）','无权重结构'],
+     a:1, e:'它本质是快慢两条均线相减，权重在快线窗口内为正、之外为负，属于带通滤波，因此对趋势启动更敏锐。'},
+    {q:'ATR 移动止损（吊灯止损）最关键的性质是？',
+     opts:['止损位随价格上下移动','止损位只向浮盈方向移动，从不后退','止损比例固定为 10%','只在开盘时检查'],
+     a:1, e:'只上移（多单）才能同时做到两件事：给趋势留呼吸空间，又在反转初期锁定大部分利润。'},
+    {q:'报告建议用什么指标评价时序 CTA 策略？',
+     opts:['是否跑赢基准指数','夏普比最大化','卡玛比（年化收益 ÷ 最大回撤）','胜率越高越好'],
+     a:2, e:'报告明确：时序 CTA 是绝对收益导向。尤其对国债 ETF 这种长期上涨资产，强求跑赢基准反而容易在正常波动中被甩下车。'},
+    {q:'状态识别时为什么要用 bootstrap 置信区间，而不是只看 TSI 点估计？',
+     opts:['为了让计算更快','点估计忽略了估计误差，阈值附近会频繁翻转','因为 GARCH 无法给出点估计','为了增加交易次数'],
+     a:1, e:'TSI 本身有统计误差。若置信区间跨零，趋势强度不足以覆盖估计偏差，可能就是噪声诱发的假信号。'}
+  ];
+  const wrap=document.getElementById('quizWrap');
+  const scoreLine=document.getElementById('scoreLine');
+  let answered=0, correct=0;
+
+  qs.forEach((item,qi)=>{
+    const d=document.createElement('div'); d.className='quiz';
+    const q=document.createElement('div'); q.className='qtext';
+    q.innerHTML=`<i>Q${qi+1}</i>${item.q}`;
+    d.appendChild(q);
+    const opts=document.createElement('div'); opts.className='opts';
+    let done=false;
+    item.opts.forEach((o,oi)=>{
+      const b=document.createElement('button'); b.className='opt'; b.textContent=o;
+      b.addEventListener('click',()=>{
+        if(done) return; done=true; answered++;
+        if(oi===item.a){ b.classList.add('correct'); correct++; }
+        else{
+          b.classList.add('wrong');
+          opts.children[item.a].classList.add('correct');
+        }
+        exp.classList.add('show');
+        scoreLine.textContent=`已答 ${answered} / ${qs.length} · 正确 ${correct}`;
+      });
+      opts.appendChild(b);
+    });
+    d.appendChild(opts);
+    const exp=document.createElement('div'); exp.className='explain';
+    exp.innerHTML=`<strong>解析：</strong>${item.e}`;
+    d.appendChild(exp);
+    wrap.appendChild(d);
+  });
+})();
+
+/* ================= nav / progress ================= */
+(function(){
+  const bar=document.getElementById('progress');
+  const links=[...document.querySelectorAll('#navlinks a')];
+  const tocs=[...document.querySelectorAll('aside.toc a')];
+  const secs=[...document.querySelectorAll('section')];
+  function onScroll(){
+    const st=window.scrollY||document.documentElement.scrollTop;
+    const hgt=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(hgt>0? (st/hgt*100):0)+'%';
+    let cur=secs[0]?.id;
+    for(const s of secs){
+      if(s.getBoundingClientRect().top<=120) cur=s.id;
+    }
+    links.forEach(a=>a.classList.toggle('active', a.getAttribute('href')==='#'+cur));
+    tocs.forEach(a=>a.classList.toggle('active', a.getAttribute('href')==='#'+cur));
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+})();
+</script>
+</body>
+</html>

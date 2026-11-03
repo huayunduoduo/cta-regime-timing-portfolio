@@ -1,0 +1,1469 @@
+# 仅多头分资产策略研究包（cta_long_only_research）
+
+> 本 README 整合了随包两份 HTML 的**全部内容**（原文件存于 `cta_long_only_research/docs/`，
+> 由 `docs/html_to_md.py` 结构化转换，未删改文字）：
+>
+> - 第二部分：`股债金量化项目研究讨论`（讨论记录：简历经历、策略消融、分资产多头改造、宏观增量与数据验证要求）
+> - 第三部分：`report`（仅多头分资产策略研究报告，对应 `results/report.html`）
+>
+> 来源：微信收到的 `cta_long_only_research.zip`（sha256 前 16 位 `5aac245859006924`，2026-11-02）。
+
+## 目录结构
+
+```
+cta_long_only_research/
+├── engine.py                # 回测引擎（多空通用：信号/成本/持仓会计）
+├── improvement_signals.py   # 消融信号族（no_rho / neutral / AR-GARCH 状态等）
+├── tailored_long.py         # 入口：分资产仅多头规则研究，重跑生成 results/
+├── tests/                   # unittest：test_engine.py / test_tailored.py
+├── data/                    # etf_daily.csv、etf_dividend.csv（与 tsc_cta/data 同源）
+├── cache/                   # AR-GARCH 等计算缓存（json）
+├── reference/               # 上游 optimized 工程的基准净值与此前改进汇总
+├── results/                 # 全部候选结果 + report.html + summary/selections/checks/manifest
+├── docs/                    # 原始 HTML、Markdown 转换件、html_to_md.py
+├── research_rules.json      # 研究规则定义
+└── README.md                # 原包自带说明（内容也收录在本文件第四部分）
+```
+
+## 运行（原包说明）
+
+需要 Python 3.10+、numpy、pandas。入口不需要 scipy、g++，不重新估计 AR-GARCH。
+
+```
+python -B tailored_long.py
+python -B -m unittest discover -s tests -v
+```
+
+每次运行重新生成本包自己的 results，不覆盖原 optimized 工程。已有结果可直接阅读。
+
+---
+
+# 第二部分：股债金量化项目研究讨论（HTML 全文）
+
+<!-- 由 股债金量化项目研究讨论.html 经 docs/html_to_md.py 结构化转换，内容未删改 -->
+
+# 股债金量化项目研究讨论
+
+股债金量化项目研究讨论
+
+## 股债金量化项目研究讨论
+
+根据用户粘贴内容整理排版　2026年11月2日
+
+保留原讨论中的简历经历、策略消融、分资产多头改造、宏观增量与新增数据验证要求。不同版本和后续更正按原有顺序保留，结论请结合其对应区间、策略版本及最新说明阅读。工具执行记录收纳在可展开区域。
+
+## 根据上传的optimized代码包写我的qr简历经历，（大概4-5点），再思考是否可将pdf文件的宏观相关数据作为项目…
+
+根据上传的optimized代码包写我的qr简历经历，（大概4-5点），再思考是否可将pdf文件的宏观相关数据作为项目增量，我已上传收集到的宏观数据。简单点评一下这个项目，生成一个面试时的介绍，关注内容、未来函数、过拟合、指标评价、策略选择
+
+User context
+
+Attachments:
+
+- 华泰证券-金工深度研究：基于趋势和拐点的市值因子择时模型-250525.pdf: `C:/Users/用户A/xwechat_files/wxid_***/temp/RWTemp/2026-11/f8d81023ac2f4cf3303c644108723f35/华泰证券-金工深度研究：基于趋势和拐点的市值因子择时模型-250525.pdf`
+
+- cta_paper_daily_optimized(1).zip: `C:/Users/用户A/xwechat_files/wxid_***/msg/file/2026-11/cta_paper_daily_optimized(1).zip`
+
+- tsc_cta_data_v3_20261101.zip: `C:/Users/用户A/xwechat_files/wxid_***/temp/RWTemp/2026-11/f8d81023ac2f4cf3303c644108723f35/tsc_cta_data_v3_20261101.zip`
+
+**▶ 9 previous messages**
+
+Stream error
+
+Reconnecting 5/5 request timed out
+
+我会先核查代码、数据和研报，把已实现的内容与可扩展方向分清，再整理成简历要点和面试介绍，重点检查未来函数、过拟合及评价口径。我会使用 PDF 技能读取研报。
+
+**▶ Ran 6 commands**
+
+**▶ Explored a file**
+
+- Read `C:/Users/用户A/.codex/plugins/cache/openai-primary-runtime/pdf/26.1026.10807/skills/pdf/SKILL.md`
+
+- Ran `Get-ChildItem -Force; Get-PSDrive -PSProvider FileSystem | Select-Object Name,Free,Root`
+
+- Ran `$zips = @('C:\Users\用户A\xwechat_files\wxid_***\msg\file\2026-11\cta_paper_daily_optimized(1).zip','C:\Users\用户A\xwechat_files\wxid_***\temp\RWTemp\2026-11\f8d81023ac2f4cf3303c644108723f35\tsc_cta_data_v3_20261101.zip'); Add-Type -AssemblyName System.IO.Compression.FileSystem; foreach ($p in $zips) { $z = [IO.Compression.ZipFile]::OpenRead($p); $p; $z.Entries | Select-Object FullName,Length | Format-Table -AutoSize; $z.Dispose() }`
+
+- Ran `$dest='E:\本地目录\review_inputs'; New-Item -ItemType Directory -Path $dest -Force | Out-Null; Expand-Archive -LiteralPath 'C:\Users\用户A\xwechat_files\wxid_***\msg\file\2026-11\cta_paper_daily_optimized(1).zip' -DestinationPath $dest -Force; Expand-Archive -LiteralPath 'C:\Users\用户A\xwechat_files\wxid_***\temp\RWTemp\2026-11\f8d81023ac2f4cf3303c644108723f35\tsc_cta_data_v3_20261101.zip' -DestinationPath $dest -Force; Get-Content -LiteralPath "$dest\cta_paper_daily_optimized\cta_paper_daily\README.md" -Encoding UTF8; Get-Content -LiteralPath "$dest\cta_paper_daily_optimized\cta_paper_daily\README_PACKAGE.md" -Encoding UTF8`
+
+- Ran `& 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -c "import importlib.util; print({x: bool(importlib.util.find_spec(x)) for x in ['pypdf','fitz','pdfplumber','numpy','pandas']})"`
+
+- Ran `& 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -c "from pypdf import PdfReader; from pathlib import Path; p=next(Path('C:/Users/用户A/xwechat_files/wxid_***/temp/RWTemp/2026-11/f8d81023ac2f4cf3303c644108723f35').glob('*.pdf')); r=PdfReader(p); t='\n'.join('\n===PAGE '+str(i+1)+'===\n'+p.extract_text() for i,p in enumerate(r.pages)); Path('review_inputs/report_text.txt').write_text(t,encoding='utf8'); print(t)"`
+
+- Ran `Get-Content 'review_inputs\cta_paper_daily_optimized\cta_paper_daily\model.py','review_inputs\cta_paper_daily_optimized\cta_paper_daily\engine.py','review_inputs\cta_paper_daily_optimized\cta_paper_daily\improvement_signals.py' -Encoding UTF8`
+
+代码包实际包含两条研究线：AR-GARCH 状态择时，以及后续的股债金配置。现有结果更支持低频逆波动配置；原 CTA 表现较弱，复杂择时也未显示稳定优势。简历可以突出对照实验、回测审计和策略取舍，但不宜写成“复现高收益 CTA”。
+
+**▶ Ran 8 commands**
+
+- Ran `Get-Content 'review_inputs\cta_paper_daily_optimized\cta_paper_daily\portfolio_research.py' -Encoding UTF8`
+
+- Ran `Get-Content 'review_inputs\tsc_cta_data_v3_20261101\data\macro_coverage.csv','review_inputs\tsc_cta_data_v3_20261101\data\DATA_DICTIONARY.md' -Encoding UTF8; $t=Get-Content 'review_inputs\report_text.txt' -Encoding UTF8 -Raw; $a=$t.IndexOf('===PAGE 6==='); $b=$t.IndexOf('===PAGE 10==='); $t.Substring($a,$b-$a)`
+
+- Ran `Get-Content 'portfolio_research.py' -Encoding UTF8 | Select-Object -Skip 365; Get-Content 'run.py','tests\test_portfolio.py' -Encoding UTF8`
+
+- Ran `Get-Content 'review_inputs\tsc_cta_data_v3_20261101\data\macro_coverage.csv' -Encoding UTF8; Get-Content 'review_inputs\tsc_cta_data_v3_20261101\data\macro_daily_strict.csv' -Encoding UTF8 -TotalCount 4; Get-Content 'review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio\summary.csv','review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio\cost_stress.csv','review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio\attribution.csv','review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio\es_ablation.csv' -Encoding UTF8`
+
+- Ran `& 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -m unittest discover -s tests -p test_portfolio.py -v`
+
+- Ran `Get-Content 'review_inputs\cta_paper_daily_optimized\cta_paper_daily\native\model.cpp' -Encoding UTF8; Get-Content 'review_inputs\cta_paper_daily_optimized\cta_paper_daily\RULES.md' -Encoding UTF8 -TotalCount 65; Get-Command pdftoppm,pdftoppm.exe -ErrorAction SilentlyContinue | Select-Object Source`
+
+- Ran `New-Item -ItemType Directory -Path 'D:\codex-task-cache\qr-review\tmp','D:\codex-task-cache\qr-review\packages' -Force | Out-Null; $env:TEMP='D:\codex-task-cache\qr-review\tmp'; $env:TMP=$env:TEMP; & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -m pip install scipy --no-deps --target 'D:\codex-task-cache\qr-review\packages' --cache-dir 'D:\codex-task-cache\qr-review\pip' --disable-pip-version-check`
+
+- Ran `$pdf='C:\Users\用户A\xwechat_files\wxid_***\temp\RWTemp\2026-11\f8d81023ac2f4cf3303c644108723f35\华泰证券-金工深度研究：基于趋势和拐点的市值因子择时模型-250525.pdf'; & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\poppler\Library\bin\pdftoppm.exe' -f 6 -l 6 -scale-to 1500 -png -singlefile $pdf 'E:\本地目录\review_inputs\report_page6'`
+
+宏观数据覆盖了研报中的增长、流动性指标，可以用于扩展实验。但研报预测的是大小市值相对表现，当前项目交易的是股、债、金，信号方向需要重新验证。另外，数据包的可用日期都是推算值，部分指标在 2025 年停更；加了滞后也不能声称已彻底消除前视偏差。我会据此给出一个规模较小、可检验的增量方案。
+
+Viewed an image
+
+**▶ Ran 3 commands**
+
+- Ran `& 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -c "import pandas as pd; from pathlib import Path; a=Path('review_inputs/cta_paper_daily_optimized/cta_paper_daily/data'); b=Path('review_inputs/tsc_cta_data_v3_20261101/data'); x=pd.read_csv(a/'etf_daily.csv'); y=pd.read_csv(b/'etf_daily.csv'); print('ETF old/new:',x.shape,y.shape); m=x.merge(y,on=['date','code'],suffixes=('_old','_new')); print({c:float((m[c+'_old']-m[c+'_new']).abs().max()) for c in ['open','close','adj_factor']}); print('div old',pd.read_csv(a/'etf_dividend.csv').to_string(index=False)); print('div new',pd.read_csv(b/'etf_dividend.csv').to_string(index=False))"`
+
+- Ran `$env:PYTHONPATH='D:\codex-task-cache\qr-review\packages'; & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -m unittest discover -s tests -p test_portfolio.py -v; & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -m unittest discover -s tests -p test_engine.py -v; & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -m unittest discover -s tests -p test_improvements.py -v`
+
+- Ran `$env:PYTHONPATH='D:\codex-task-cache\qr-review\packages'; @'
+
+import pandas as pd,numpy as np from pathlib import Path from portfolio_research import load_data,build_targets,Config,simulate,stats root=Path('.') dates,fields,div=load_data(root/'data') c=Config(allocation='invvol') t,flags,_=build_targets(dates,fields,[c]) nav,tx=simulate(dates,fields,div,t[c.name],flags['monthly'],start='2020-01-01') saved=pd.read_csv(root/'results/portfolio/benchmark_invvol_monthly_nav.csv') print('RECALC',stats(nav)) print('MAX_NAV_DIFF',float(np.max(np.abs(nav.nav-saved.nav)))) print('PNL_ERROR',nav.pnl_reconstruction_error.max()) print('CALENDAR_CAGR',nav.nav.iloc[-1]**(365.25/(nav.date.iloc[-1]-nav.date.iloc[0]).days)-1) print('MAX_BOND_WEIGHT',nav.weight_511010.max()) print('GOLD_SHARE_PNL',nav.net_pnl_518880.sum()/(nav.nav.iloc[-1]-1)) '@ | & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -`
+
+已重算月度逆波动组合，净值与包内结果一致；本次通过了 23 项账本、信号时序和状态改造测试。该组合按 252 日年化为 7.50%，最大回撤 4.83%。归因也显示：平均国债权重约 60%，黄金贡献约占累计净收益的 56%，所以更有依据的结论是配置与分散有效，尚不能据此证明择时能力强。
+
+建议把项目定位为：**“日频股债金策略研究：状态择时、组合配置与风险验证”**。最有价值的经历是通过对照实验发现复杂择时的局限，并建立可信的回测与评价框架。
+
+我已核查主要代码，并重算月度逆波动组合，净值与包内结果一致；本次通过了23项账本、信号时序和状态改造测试，未重新估计全部 AR-GARCH 和 Bootstrap。
+
+下面的简历措辞按代码已实现内容撰写，你应保留自己实际参与、能够解释的部分。
+
+**简历经历可写为以下5点：**
+
+项目名称：日频股债金策略研究与组合风险管理｜Python、C++
+
+- **策略建模：**围绕沪深300、黄金及国债ETF，构建基于效率比率自适应窗口的 AR(1)-GARCH(1,1) 状态识别模型，通过每窗口1,000次残差 Bootstrap 评估趋势强度，结合自适应均线、RSI及ATR退出机制开展日频择时研究。
+
+- **回测实现：**搭建收盘决策、次日开盘执行的持仓与现金账本，使用未复权价格撮合，独立处理除息应收及分红到账，计入双边佣金、滑点，并通过历史截断及未来数据扰动检查信号时序。
+
+- **策略比较：**设计趋势过滤、等权／逆波动／风险平价配置、周／月调仓及ES限仓的36组对照，采用2015—2019年学习期与年度扩展窗口选择机制，比较固定规则与动态选择的稳定性。
+
+- **风险评价：**实现历史模拟、EWMA正态及过滤历史模拟的VaR／ES诊断，开展成本压力测试、ES消融与收益贡献归因，评估风险控制效果及复杂模块的实际增量。
+
+- **研究结论：**2020—2025年历史检验中，月度逆波动组合扣费后按252交易日年化收益7.50%、最大回撤4.83%、夏普1.48；相较原CTA及趋势过滤方案表现更均衡，据此保留低复杂度配置作为后续验证基线。
+
+这些数字可在[组合结果表](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/portfolio/summary.csv>)核对。简历中保留“历史检验”和年化口径，避免写成“独立样本外收益”或“实盘业绩”。
+
+你上传的宏观数据**可以成为项目增量，但目前只能写成下一步研究方向**。
+
+研报第5—9页的方法值得借鉴：用多组双均线投票提取增长、流动性趋势，减少对单一窗口的依赖。参考来源为：:codex-file-citation{path="C:/Users/用户A/xwechat_files/wxid_***/temp/RWTemp/2026-11/f8d81023ac2f4cf3303c644108723f35/华泰证券-金工深度研究：基于趋势和拐点的市值因子择时模型-250525.pdf" purpose="source"}
+
+需要区分两件事：**宏观趋势的提取方法可以迁移，大小市值的交易方向不能直接迁移。**研报中的“景气利空小市值”描述的是股票内部相对收益，不能据此直接决定股债金仓位；黄金还受到实际利率、汇率等因素影响。
+
+你的数据与研报对应情况较好：
+
+| 维度 | 已收集数据 | 当前适用性 |
+|---|---|---|
+| 增长 | COMEX铜／金、BDI、PTA产业链、建材、煤炭吞吐量 | 可构建增长代理；部分序列提前停更 |
+| 流动性 | R007、Shibor 3M、1年及10年国债收益率 | 可构建资金与利率趋势；R007、1年国债缺少2025年后半段 |
+| 补充变量 | 2／5／30年国债收益率 | 可研究期限结构，但属于新增假设 |
+
+数据包虽在2026年整理，行情研究窗口仍截止2025年底；具体缺口见[宏观覆盖表](</<本地目录>/review_inputs/tsc_cta_data_v3_20261101/data/macro_coverage.csv>)。
+
+我建议先做一个小实验，避免一次加入15个变量：
+
+1. **先检验10年国债收益率趋势对国债仓位的增量。**例如预先固定“利率上行时降低部分国债目标仓位，余额留现金”，其余配置不变。方向有解释基础，也便于归因。
+
+2. 对照原逆波动组合、固定降仓组合和价格均线过滤，判断改善是否只是少承担风险。
+
+3. 再加入铜金比、Shibor 3M，研究增长与流动性是否提供独立信息。研报的45组双均线投票可作为特征提取方法，但45组高度相关的参数不等于45份独立证据。
+
+4. 冻结规则后检验新增时期，评价扣费后的收益、回撤、换手及不同阶段表现；不能只比较一次全样本夏普。
+
+尤其要注意：`available_time` 全部是推算值，strict版也没有真实历史发布时间和修订版本的保证。应按可用时间向后匹配、设置数据失效期限，并检查额外延迟后的结果。**增加滞后不保证收益一定下降，因此strict结果也不能机械理解为真实收益的上限。**停更数据不能无限向前填充，缺失值也不能随意填零。
+
+对这个项目，我的评价是：**回测工程与研究流程较完整，预测能力和独立验证仍有提升空间。**面试时重点把以下问题讲清楚。
+
+- **内容与策略选择：**原多空CTA等分资金组合年化约−2.28%，状态改造后约3.33%，月度逆波动配置约7.50%。这是不同机制和风险暴露的比较，不能把全部收益改善归因于状态模型优化。年度滚动前三约7.64%，与固定前三接近，尚未体现动态选择的明显价值。
+
+- **未来函数：**主组合使用截至当日收盘的历史数据计算目标，下一交易日开盘成交；原CTA当日使用盘前已确定的止损价，当日高低价只更新下一日止损。这些处理合理。但测试通过只能支持已覆盖的逻辑，不能证明整个研究完全不存在前视偏差，宏观数据尤其需要单独审计。
+
+- **过拟合：**过去数据选参、保留全部候选、参数敏感性和消融实验都有价值。不过2020—2025年已被反复查看，36组之外还有前期研究选择，不能宣称这些是完全未触碰的样本外。1,000次Bootstrap衡量的是给定模型下的估计不确定性，也不能消除策略选择偏差。
+
+- **指标评价：**代码夏普按零无风险收益计算；7.50%采用252交易日年化，按实际日历时间约为7.21%，汇报时应统一口径。除收益、夏普、卡玛外，还应看回撤持续时间、分阶段表现、成本敏感性和尾部损失；VaR超限率接近理论值也不足以证明模型校准成功。
+
+- **收益来源与实施边界：**主组合平均约17.3%股票、22.8%黄金、59.9%国债，黄金贡献约占累计净收益的56%。低回撤与较低权益暴露、分散配置密切相关。ES开关在所展示的三均线逆波动组合中没有改变净值，不能写成“ES显著提升表现”。原CTA的做空、日线止损撮合，以及组合的小数份额假设，也需要与实际交易条件区分。
+
+归因依据见[收益贡献表](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/portfolio/attribution.csv>)，时序和账本实现见[组合代码](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/portfolio_research.py>)。
+
+面试时可以这样介绍，约两分钟：
+
+我做的是一个日频股债金策略研究项目，交易对象是沪深300、黄金和国债ETF。核心问题是：状态识别和风险控制，能否在扣除交易成本后，相对简单配置提供稳定增量。
+
+最初我使用AR-GARCH识别市场状态，用Bootstrap评估趋势强度，再结合均线、RSI和ATR构建入场与退出规则。回测中重点处理了信号和成交的时间关系，以及复权、现金分红和交易成本，避免将当日收盘信息用于当日开盘成交。
+
+实验发现，原CTA在这组数据和执行假设下表现较弱。因此我进一步构建股债金组合账本，对趋势过滤、配置方式、调仓频率和ES限仓进行36组对照，并比较固定选择与年度滚动选择。
+
+当前结果中，月度逆波动组合按252交易日年化约7.5%，最大回撤约4.8%。但我不会把它解释为很强的择时能力，因为组合平均约六成配置国债，黄金贡献也较大；复杂趋势和ES模块尚未显示稳定增量。因此现阶段保留简单配置作为验证基线。
+
+项目的主要局限是历史区间已经被反复研究，尚缺完全独立的新时期验证。下一步我准备引入增长和流动性指标，先做少量、有经济解释的宏观过滤实验，严格处理可用时间与停更问题，再检查它能否在相近风险暴露下改善扣费后的表现。
+
+我该怎么优化这个项目？
+
+我建议把优化目标定为：**证明一个简单、可解释的信号，能否在相近风险暴露下，为股债金配置带来稳定增量。**这比继续提高历史收益，更能增强项目的QR研究价值。
+
+你目前已有回测、对照和风险诊断框架，接下来按以下顺序推进。
+
+1. **先把收益来源讲透，建立更公平的基准。**
+
+目前月度逆波动组合平均约60%配置国债，黄金贡献约占累计净收益的56%。因此，需要回答：成绩主要来自资产选择、配置比例，还是动态调整？
+
+增加三组基准即可：
+
+| 基准 | 要回答的问题 |
+|---|---|
+| 月度等权 | 逆波动配置是否有价值？ |
+| 训练期确定、之后冻结的固定权重 | 动态调整是否优于长期持有类似暴露？ |
+| 按历史波动率控制风险的等权组合 | 回撤改善是否主要来自降低风险？ |
+
+固定权重必须只用训练期确定；风险控制也只能使用当时可见数据。除了全样本指标，还要比较逐年、不同市场阶段及收益贡献。
+
+**这是当前最值得先做的优化：成本低，但能明显提高结论可信度。**
+
+2. **把CTA改造拆开，弄清楚究竟是哪一步有效。**
+
+当前从原CTA到改进版，同时涉及只做多、取消部分统计门槛、缩短确认期，以及取消不确定状态下的RSI交易。这些变化混在一起，难以归因。
+
+建议按固定顺序逐项添加：
+
+原策略 → 只做多 → 不交易不确定状态 → 取消ρ门槛 → 缩短确认期。
+
+每一步同时报告收益、风险暴露、换手和成本。尤其检查：
+
+- 只做多是否已经解释了大部分改善？
+
+- 取消RSI交易是否减少了无效换手？
+
+- 缩短确认期是否改善入场，还是增加噪声？
+
+- 扣费前后结论是否一致？
+
+这样面试时可以明确回答“为什么改”，而不是只说“优化后收益更高”。如果AR-GARCH始终不如简单均线，就把它保留为有解释的失败实验。
+
+3. **宏观增量先做两个假设，控制研究自由度。**
+
+第一阶段不必把15项数据全部加入，也不必上HMM或机器学习。
+
+**假设A：利率趋势可以改善国债仓位管理。**
+
+使用10年国债收益率趋势，预先固定规则，例如利率上行时将国债基础目标仓位减半，减少的部分留现金。比较：
+
+- 原逆波动组合；
+
+- 宏观过滤组合；
+
+- 固定降低国债暴露的对照；
+
+- 用国债ETF自身价格趋势过滤的对照。
+
+如果宏观过滤不能超过简单价格信号，它的额外数据成本就缺乏依据。
+
+**假设B：增长、流动性状态影响价格趋势策略的有效性。**
+
+先用铜金比、Shibor 3M观察：不同宏观状态下，趋势策略的收益、换手和尾部损失是否有稳定差异。先做条件分析，再决定是否建立交易规则，避免看到结果后反复修改信号方向。
+
+宏观数据必须按估算可用时间对齐，并进行额外延迟检验；停更后失效。你目前没有真实历史发布时间和修订版本，因此应明确保留这项限制。
+
+4. **冻结研究规则，建立一次真正有约束的验证。**
+
+当前最大的统计问题是2020—2025年已经被反复查看。继续切分这段数据，无法重新获得完全独立的样本外证据。
+
+建议写一页“实验登记表”，记录：
+
+- 假设、信号方向和计算方法；
+
+- 少量候选参数及选择标准；
+
+- 基准、成本和缺失处理；
+
+- 判定有效与无效的条件；
+
+- 冻结日期和代码版本。
+
+此后新增实验都登记，包括失败结果。2026年数据若尚未看过，可以作为额外留出检验，但仍要区分“事后留出”和“规则冻结后的前瞻跟踪”。
+
+对宏观策略还应观察**状态切换次数**。十几年日频数据可能只有少数独立宏观周期，不能把几千个交易日理解为几千次独立验证。
+
+5. **补齐评价和实施细节，形成可复现成果。**
+
+优先处理这些具体问题：
+
+- **统一指标口径：**区分252交易日年化与日历年化；夏普明确无风险收益假设。当前换手计算累加买卖成交额，应明确口径，避免与常见“双边成交额除以2”的定义混淆。
+
+- **增加回撤持续时间：**低最大回撤也可能长期不创新高，需同时评价持有体验。
+
+- **风险模型补正式检验：**除VaR超限率外，检查超限独立性；ES需要单独评价，不能由VaR表现替代。
+
+- **记录约束是否触发：**ES开关如果没有改变仓位，应报告“未触发”，不能据此判断其风险控制能力强或弱。
+
+- **完善成交约束：**主方案加入整手、最低佣金和资金规模检验；容量研究先补真实成交额。60%目前是目标权重上限，调仓之间实际权重会漂移，报告中应区分。
+
+我建议你下一版项目的主线收敛成：
+
+**股债金配置基准 → 状态择时消融 → 宏观信号增量 → 成本与风险验证。**
+
+最先完成三件事就够：**固定权重及风险匹配基准、CTA逐项消融、单一利率过滤实验。**完成后，无论宏观信号是否提高收益，你都能形成一套清楚、可复现、能够回答追问的研究结论。
+
+这里我的代码包不是已经做过了吗
+
+User context
+
+Images:
+
+- `C:/Users/用户A/AppData/Local/Temp/codex-clipboard-09139b6d-6a48-4e32-b262-6a5147eda1f5.png`
+
+**▶ 2 previous messages**
+
+我会重新核对截图涉及的基准和逐项消融，把已经做过的与仍缺少的对照分清。上条建议确实把包内部分已有工作写成了待新增项。
+
+**▶ Ran 2 commands**
+
+- Ran `Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\improvement_signals.py' -Encoding UTF8; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\run_improvements.py' -Encoding UTF8; Get-ChildItem -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio' -Name | Where-Object {$_ -match 'control|benchmark|attribution|summary|yearly|ablation'}; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\improvements\summary.csv' -Encoding UTF8`
+
+- Ran `rg -n 'fixed|control|ratio|benchmark|vol|neutral_10|baseline_long|no_rho' 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\portfolio_research.py' 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\README.md' 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\build_improvements_report.py'`
+
+**是的，你指出得对。截图中的“月度等权”和“CTA逐项消融”，代码包已经做了。**我上一条没有充分对照已有实现，把已完成的工作列成新增建议了，抱歉。
+
+重新核对后，准确情况如下：
+
+| 我之前建议的内容 | 代码包实际情况 |
+|---|---|
+| 月度等权基准 | **已完成**：`benchmark_equal_monthly` |
+| 原策略→只做多 | **已完成**：`baseline_full` → `baseline_long` |
+| 非趋势状态不交易 | **已完成**：`baseline_long` → `neutral_10` |
+| 取消ρ正值门槛 | **已完成**：`neutral_10` → `no_rho_10` |
+| 缩短确认期 | **已完成**：`no_rho_10` → `no_rho_3`，另有五日内三日确认 |
+| 逐年、分阶段评价及收益归因 | **已完成**：已有相应结果表 |
+| ES与固定降仓对照 | **已完成**：`es_matched_exposure_control` |
+| 训练期确定后冻结的资产权重 | **未见该项**：现有“固定前三”冻结的是策略成员，成员内部仍动态调仓 |
+| 按历史波动率控制风险的等权基准 | **未见该项**：逆波动配置、ES固定降仓对照与它含义不同 |
+
+逐项消融直接写在[状态改造代码](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/improvement_signals.py>)中；组合基准和ES对照见[组合研究代码](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/portfolio_research.py>)。
+
+**所以，关于CTA消融，你现在需要的是解释已有结果，不需要重新做一遍。**已有结果已经能说明“放松条件并非普遍有效”：
+
+- 黄金取消ρ门槛、保留10日确认，年化约 **10.11%**；缩短到3日确认后约 **6.90%**，反而下降。
+
+- 沪深300同一步骤从约 **3.54%升至5.86%**。
+
+- 国债则从约 **−3.54%降至−4.53%**。
+
+这说明缩短确认期的效果存在资产差异，不能统一表述为“确认更快，因此策略更好”。这些都是[已有消融结果](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/improvements/summary.csv>)，可以直接形成面试讨论。
+
+因此，我修正优化优先级为：
+
+1. **整理已有消融结论**：逐步解释收益、暴露和换手如何变化，说明哪些改动有效、哪些没有稳定作用。
+
+2. **补两个针对性基准**：训练期冻结资产权重，以及风险匹配的等权组合，用来进一步区分配置收益与动态调整收益。
+
+3. **开展宏观增量实验**：这是当前尚未实现、也最有可能形成新研究内容的部分。
+
+4. **冻结规则并跟踪新增数据**：提高验证独立性。
+
+你这个项目的基础验证比我上一条建议所体现的更完整。后续应围绕**尚未回答的问题**补实验，已有的基准、消融和归因应直接作为项目成果。
+
+**整理已有消融结论**：逐步解释收益、暴露和换手如何变化，说明哪些改动有效、哪些没有稳定作用。  这里帮我分析一下，并把这里：\*策略建模：\*\*围绕沪深300、黄金及国债ETF，构建基于效率比率自适应窗口的 AR(1)-GARCH(1,1) 状态识别模型，通过每窗口1,000次残差 Bootstrap 评估趋势强度，结合自适应均线、RSI及ATR退出机制开展日频择时研究。
+
+1. \*\*回测实现：\*\*搭建收盘决策、次日开盘执行的持仓与现金账本，使用未复权价格撮合，独立处理除息应收及分红到账，计入双边佣金、滑点，并通过历史截断及未来数据扰动检查信号时序。
+
+2. \*\*策略比较：\*\*设计趋势过滤、等权／逆波动／风险平价配置、周／月调仓及ES限仓的36组对照，采用2015—2019年学习期与年度扩展窗口选择机制，比较固定规则与动态选择的稳定性。
+
+3. \*\*风险评价：\*\*实现历史模拟、EWMA正态及过滤历史模拟的VaR／ES诊断，开展成本压力测试、ES消融与收益贡献归因，评估风险控制效果及复杂模块的实际增量。
+
+4. \*\*研究结论：\*\*2020—2025年历史检验中，月度逆波动组合扣费后按252交易日年化收益7.50%、最大回撤4.83%、夏普1.48；相较原CTA及趋势过滤方案表现更均衡，据此保留低复杂度配置作为后续验证基线。的思路、步骤解释的更详细，可以参考我的代码包的几个含readme的文件
+
+**▶ 3 previous messages**
+
+我会结合各版 README、消融结果和实现代码，逐步分析收益、暴露及换手的变化，再把这五条简历经历展开成面试时能讲清楚的研究流程，并区分结果支持的结论与仍待验证的解释。
+
+**▶ Ran 8 commands**
+
+- Ran `Get-ChildItem -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily' -Filter '*README*' | Select-Object Name,Length; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\README 001.md' -Encoding UTF8`
+
+- Ran `Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\README_PREVIOUS.md','E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\README.md' -Encoding UTF8`
+
+- Ran `Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\README_PACKAGE.md' -Encoding UTF8 -TotalCount 100; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\improvements\RESULTS.md','E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio\risk_coverage.csv','E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio\selections.csv' -Encoding UTF8; Get-ChildItem -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\audit' -Name`
+
+- Ran `@'
+
+import pandas as pd from pathlib import Path p=Path(r'<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results') d=pd.read_csv(p/'improvements/summary.csv',dtype={'code':str}) for code,g in d.groupby('code',sort=False): print('\nASSET',code) for r in g.itertuples(): print(r.strategy, 'CAGR %.2f%% DD %.2f%% exposure %.2f%% turnover %.2f trend %.2f%% closed %d underwater %d calmar %.3f'%(r.cagr*100,r.max_drawdown*100,r.mean_exposure*100,r.annual_turnover,r.trend_share*100,r.closed_trades,r.max_underwater_days,r.calmar)) y=pd.read_csv(p/'improvements/yearly.csv',dtype={'code':str}) print('\nYEARLY TOTAL RETURNS:') print(y.pivot(index=['code','strategy'],columns='year',values='total_return').mul(100).round(2).to_string()) s=pd.read_csv(p/'sensitivity.csv',dtype={'code':str}) print('\nORIGINAL COST STRESS:') print(s[s.strategy.isin(['zero_cost_diagnostic','double_cost_stress'])][['code','strategy','cagr','max_drawdown']].to_string(index=False)) '@ | & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -`
+
+- Ran `Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\audit\state_gates.csv','E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\audit\pnl_attribution.csv','E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\audit\independent_optimizer.csv' -Encoding UTF8; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\model.py','E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\engine.py' -Encoding UTF8`
+
+- Ran `Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\portfolio_research.py' -Encoding UTF8 | Select-Object -First 295; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio\es_ablation.csv','E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio\cost_stress.csv' -Encoding UTF8`
+
+- Ran `@'
+
+import pandas as pd,numpy as np from pathlib import Path p=Path(r'<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results') for code in ['510300','518880','511010']: a=pd.read_csv(p/f'improvements/{code}_no_rho_3of5_signals.csv') b=pd.read_csv(p/f'improvements/{code}_risk_separate_3of5_signals.csv') mask=(a.date>='2020-01-01')&(a.date<='2025-12-31') print(code,'signal_different',int((a.loc[mask,'signal']!=b.loc[mask,'signal']).sum()),'state_different',int((a.loc[mask,'state']!=b.loc[mask,'state']).sum())) for v in ['neutral_10','no_rho_10','no_rho_3']: nav=pd.read_csv(p/f'improvements/{code}_{v}_nav.csv') days=nav.assign(year=nav.date.str[:4]).groupby('year').quantity.agg(lambda x: int((x!=0).sum())) print(v,'holding days',days.to_dict()) '@ | & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -`
+
+- Ran `rg -n '^def |VARIANTS|good=|good =|signal|risk=|score =|configs=|ratio=|forecasts=|source_hashes' 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\improvement_signals.py' 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\model.py' 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\portfolio_research.py'; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\results\portfolio\manifest.json' -Encoding UTF8 | Select-Object -Last 23`
+
+已有结果支持几个很具体的结论：黄金取消ρ门槛后改善明显，但缩短确认期反而变差；国债增加交易后，亏损和成本负担都加重了。还核实到两点：独立波动过滤在测试期没有改变三只ETF的状态或信号；2020—2025年滚动前三的成员集合始终相同，只有排名变化。这能更准确地解释为什么这些复杂模块没有显示增量。
+
+可以。结合几份 README、实际代码和结果表，你的研究过程可以讲成一条完整的线：
+
+**实现研报规则 → 诊断状态识别与交易问题 → 逐项消融 → 扩展到多资产配置 → 检验复杂模块是否值得保留。**
+
+其中最重要的结论是：**状态改造存在明显的资产差异；当前结果更支持低频配置，而没有证明复杂择时普遍有效。**
+
+先说明文档关系：[README 001.md](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/README 001.md>)和[README_PREVIOUS.md](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/README_PREVIOUS.md>)记录了复现、诊断与状态改造；[当前README](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/README.md>)记录后续组合研究。因此，旧文档里的“组合配置待实施”，在当前版本中已经完成；宏观择时仍未实现。
+
+下面先分析已有消融，再展开五条简历经历的思路和步骤。
+
+**先看消融结果：收益、暴露和换手必须一起读。**
+
+下表均为2020—2025年、扣费后、按252交易日年化。平均暴露是每日绝对持仓市值占净值的均值；换手沿用代码口径，即买卖成交额均累计后年化，单位为“倍”。
+
+| 沪深300ETF | 年化收益 | 最大回撤 | 平均暴露 | 年化换手 |
+|---|---|---|---|---|
+| 原多空策略 | 3.66% | −27.19% | 52.04% | 20.43 |
+| 原规则只做多 | 6.23% | −16.98% | 32.70% | 11.41 |
+| 非趋势不交易，确认10日 | 3.60% | −10.10% | 14.83% | 1.37 |
+| 取消ρ门槛，确认10日 | 3.54% | −12.81% | 22.45% | 2.23 |
+| 取消ρ门槛，确认3日 | 5.86% | −12.49% | 30.22% | 2.58 |
+| 五日内三日同方向确认 | 3.91% | −23.44% | 33.10% | 3.26 |
+| 买入持有 | 3.80% | −41.01% | 95.99% | 0.17 |
+
+| 黄金ETF | 年化收益 | 最大回撤 | 平均暴露 | 年化换手 |
+|---|---|---|---|---|
+| 原多空策略 | −6.61% | −46.97% | 39.70% | 20.74 |
+| 原规则只做多 | 0.35% | −19.51% | 10.03% | 9.34 |
+| 非趋势不交易，确认10日 | −3.33% | −20.32% | 2.82% | 2.08 |
+| 取消ρ门槛，确认10日 | 10.11% | −16.54% | 39.11% | 14.17 |
+| 取消ρ门槛，确认3日 | 6.90% | −22.91% | 46.60% | 18.32 |
+| 五日内三日同方向确认 | 6.20% | −24.85% | 51.62% | 20.74 |
+| 买入持有 | 19.18% | −20.47% | 100.00% | 0.17 |
+
+| 国债ETF | 年化收益 | 最大回撤 | 平均暴露 | 年化换手 |
+|---|---|---|---|---|
+| 原多空策略 | −5.49% | −27.89% | 51.67% | 27.72 |
+| 原规则只做多 | −3.60% | −19.13% | 25.64% | 22.49 |
+| 非趋势不交易，确认10日 | −2.65% | −14.34% | 20.00% | 17.30 |
+| 取消ρ门槛，确认10日 | −3.54% | −18.98% | 29.42% | 24.91 |
+| 取消ρ门槛，确认3日 | −4.53% | −23.49% | 36.70% | 30.44 |
+| 五日内三日同方向确认 | −4.63% | −23.93% | 38.42% | 31.13 |
+| 买入持有 | 3.01% | −4.92% | 99.95% | 0.17 |
+
+数据来自[状态改造汇总表](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/improvements/summary.csv>)。独立波动过滤与“五日内三日确认”的结果完全相同，后面单独解释。
+
+**第一步：从多空改成只做多，三只资产的历史表现均改善，但这首先是方向权限变化。**
+
+三只ETF均提高了收益、减少了回撤，同时暴露和换手下降。黄金最明显：年化从−6.61%变成0.35%，最大回撤从46.97%降至19.51%。
+
+原策略审计还发现，黄金已平仓的震荡空头，对初始资金的累计贡献约为−38.82%，是重要亏损来源。原规则未确认趋势时使用RSI反转，容易在持续上涨过程中将“超买”当成做空机会。依据见[交易盈亏归因](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/audit/pnl_attribution.csv>)。
+
+但是，取消空头后黄金仅获得0.35%年化，远低于买入持有19.18%，说明：
+
+屏蔽空头减少了错误方向的损失，剩余多头入场规则仍没有充分参与上涨。
+
+这里不能直接把两个版本的收益差理解为“空头独立贡献”，因为取消空头也会改变后续可入场时间、资金和持仓路径。
+
+**第二步：非趋势状态不再交易，大幅减少换手，但没有形成统一的收益改善。**
+
+这一改动的研究动机合理：
+
+没有足够证据确认趋势，不代表已经确认市场适合均值回归。
+
+代码因此取消了非趋势状态下的RSI入场，但保留原来的趋势条件与ATR退出。
+
+结果分化明显：
+
+- **沪深300：**换手从11.41倍降至1.37倍，暴露从32.70%降至14.83%，回撤下降，但年化收益也从6.23%降至3.60%。卡玛从0.367变成0.356，基本没有改善。
+
+- **黄金：**暴露降至2.82%，年化却从0.35%变成−3.33%，回撤也未改善。少量保留下来的趋势交易本身仍可能亏损。
+
+- **国债：**收益和回撤有所改善，但仍为负收益，只能说减少了部分损耗。
+
+进一步检查持仓发现，沪深300的`neutral_10`在**2022—2025年全程空仓**。因此，这个版本回撤较低，很大程度上来自退出市场，不能仅凭回撤认定识别能力提高。
+
+还有一个面试容易被问到的细节：**非趋势不交易指不新开仓；已有趋势仓位仍由ATR退出，不会在状态失效当天立即清仓。**
+
+**第三步：取消ρ>0门槛，对黄金有效，对另外两只资产没有稳定帮助。**
+
+ρ刻画的是收益的一阶自相关，即短期收益是否存在延续性。价格长期上涨，并不要求每日收益都正相关。
+
+黄金原策略中，ρ为正的日期只占约27.97%，最终确认趋势的日期仅占3.78%。因此，ρ门槛可能阻挡了大量有方向的价格行情。取消后：
+
+- 趋势日比例从3.78%升至42.47%；
+
+- 平均暴露从2.82%升至39.11%；
+
+- 年化收益从−3.33%升至10.11%；
+
+- 最大回撤从20.32%降至16.54%。
+
+这组结果支持：**在当前黄金样本和其余条件不变的情况下，ρ正值门槛过于限制参与。**
+
+但它不能推广到所有资产：
+
+- 沪深300增加了暴露和换手，收益略降，回撤扩大；
+
+- 国债增加了暴露和换手，收益及回撤都变差。
+
+黄金的改善也存在时间集中性：该版本2024年收益约15.16%，2025年约50.25%。需要将其描述为当前样本中的有效改动，尚不足以称为跨周期稳定规律。
+
+**第四步：将确认期从10日缩短到3日，只改善了沪深300。**
+
+这一步的假设是减少确认滞后，代价是容忍更多短暂信号。
+
+- **沪深300：**年化3.54%→5.86%，回撤大致相当，卡玛0.277→0.470，当前结果支持缩短确认。
+
+- **黄金：**年化10.11%→6.90%，回撤16.54%→22.91%，换手14.17→18.32倍，表现恶化。
+
+- **国债：**年化−3.54%→−4.53%，换手24.91→30.44倍，回撤进一步扩大。
+
+因此，合理解释是：
+
+缩短确认期提高了参与度，但参与更多信号并不保证收益更高；结果取决于新增交易的质量及其成本。
+
+不能为了统一采用3日确认，就将沪深300的改善当成跨资产结论。
+
+**第五步：“五日内三日确认”没有显示优势，独立波动过滤没有产生实际差异。**
+
+“五日内三日”不仅容忍条件中断，还要求至少三天同方向、当天也有同方向证据。它与“连续三日”的差别不止一个，不能简单理解为只放松确认。
+
+当前结果中，它相较连续三日版本：
+
+- 三只资产的收益均下降；
+
+- 三只资产的换手均上升；
+
+- 三只资产的最大回撤均扩大。
+
+因此，当前没有证据支持保留这项额外复杂度。
+
+独立波动过滤则将原条件：
+
+\[ t_\rho>1.5\quad\text{或}\quad \sigma历史分位数<95\% \]
+
+改为只要求：
+
+\[ \sigma历史分位数<95\% \]
+
+我核对了保存的信号，**2020—2025年三只ETF的状态和入场信号均未发生变化**。因此应写“在该样本中未产生有效差异”，不能据此证明高波动过滤有用或无用。
+
+这部分的面试结论可以直接说：
+
+消融发现，取消空头在当前样本中普遍减少损失；取消ρ门槛主要改善黄金，缩短确认期主要改善沪深300，未得到跨资产一致有效的状态改造。国债各改造版本仍亏损，说明更频繁交易未能覆盖成本。因此我没有逐资产挑历史赢家拼接收益，而继续研究低频组合配置。
+
+国债的成本证据尤其明确：原策略零成本年化约−0.10%，基准成本下约−5.49%。这说明它高度依赖成交摩擦，但也说明零成本下没有表现出明显正收益，不能把问题完全归因于费用。[原策略成本敏感性结果](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/sensitivity.csv>)
+
+接下来，把五条简历经历展开成可以讲清楚的思路和步骤。
+
+**1. 策略建模：先判断什么环境适合什么交易，再建立入场与退出规则。**
+
+研究问题是：同一种交易方式是否适合所有市场状态？原框架希望在趋势环境追随方向，在其他环境做RSI反转。
+
+实际实现分为五步。
+
+**① 用效率比率确定模型响应速度。**
+
+对复权收盘价计算30日效率比率：
+
+\[ ER_t=\frac{|P_t-P_{t-30}|} {\sum_{j=t-29}^{t}|P_j-P_{j-1}|} \]
+
+价格单向运动时，净变化接近路径总变化，ER较高；价格反复波动时，ER较低。代码据此设置：
+
+\[ 模型窗口=\operatorname{round}(250-229ER_t) \]
+
+即21—250日。趋势明显时缩短窗口，提高响应速度；噪声较多时增加样本，平滑估计。同时，自适应均线窗口为：
+
+\[ \operatorname{round}(20-15ER_t) \]
+
+范围为5—20日。这个设计是模型假设，不能仅凭公式就认定优于固定窗口。
+
+**② 在当前窗口内清洗异常价格，估计AR-GARCH。**
+
+代码使用MAD识别异常价格，再用Huber线性趋势的拟合值替换，清洗仅用于建模，实际成交价格保留原值。
+
+随后对清洗价格的对数收益估计：
+
+\[ r_t=\mu+\rho r_{t-1}+\epsilon_t \]
+
+\[ \epsilon_t=\sigma_tz_t,\qquad \sigma_t^2=\omega+\alpha\epsilon_{t-1}^2+\beta\sigma_{t-1}^2 \]
+
+AR部分描述短期收益延续，GARCH部分描述条件波动聚集。代码通过联合极大似然估计参数，C++承担主要数值计算。
+
+注意：这里的μ是AR截距，不能直接称为长期平均收益；代码定义的趋势强度为：
+
+\[ TSI_t=\frac{\hat\mu}{\hat\sigma_t} \]
+
+**③ 用Bootstrap评估TSI估计的不确定性。**
+
+每个窗口提取标准化残差，中心化、标准化后有放回抽样，递归生成AR-GARCH路径，并对模拟路径重新估计模型。收集1,000个有效TSI估计，取2.5%和97.5%分位数形成区间。
+
+这一步用于判断给定模型下的估计稳定性，**1,000次模拟不会增加真实独立样本数量，也不能消除策略选择过拟合**。
+
+**④ 将统计结果转成状态与入场信号。**
+
+原规则要求趋势强度、ρ和风险条件通过，再连续确认10日。趋势向上且价格高于自适应均线时开多，向下时对称开空；未确认趋势时使用RSI14反转。
+
+消融就是逐项检查这些条件是否值得保留，而没有重新估计一套更赚钱的模型参数。
+
+**⑤ 让退出规则与入场类型对应。**
+
+趋势单采用ATR吊灯止损；震荡多单RSI超过40退出，空单低于60退出。趋势单持仓期间不会因为出现新的RSI信号就切换退出逻辑。
+
+这条经历可以解释为：
+
+我将统计估计、状态确认、入场和退出拆成可检查的模块，再通过消融判断各条件是否提供增量。
+
+实现依据见[模型代码](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/model.py>)及[状态改造代码](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/improvement_signals.py>)。
+
+**2. 回测实现：把信号收益转成能够逐日核对的账户收益。**
+
+核心思路是分别处理“用于判断的价格”“用于成交的价格”和“现金流”。
+
+具体步骤为：
+
+- **信号计算：**用复权价格计算收益、均线和波动，减少除息跳变对指标的干扰。
+
+- **成交撮合：**使用真实未复权价格。收盘形成的信号，下一交易日开盘执行。
+
+- **分红确认：**除息日按原有持仓形成应收，支付日转为现金。应收计入净值，但到账前不能用于买入。
+
+- **费用扣除：**每次成交佣金1‰、逆向滑点1‰，买卖两边均扣，完整往返约4‰。
+
+- **账本核对：**每日检查现金、持仓市值与应收之和是否等于净值。
+
+例如，持有100份ETF，每份分红0.1元、尚未到账时，应确认10元应收；不能因为除息价格下降就把它全部计成亏损，也不能提前拿这10元买入。
+
+组合还核对：
+
+\[ 净值变化 = 各资产价格盈亏 + 分红确认 - 交易成本 \]
+
+未来函数检查主要针对两类问题：
+
+- 截短历史数据，过去的信号是否保持一致；
+
+- 修改未来价格，是否影响更早的目标仓位及历史排序。
+
+ATR撮合另有时序约束：**当日使用盘前已确定的止损价，当日高低价只更新下一日止损。**日线触发后按止损价加固定滑点成交仍是撮合假设，不能称为还原分钟成交。
+
+这条经历的重点是：
+
+我既检查信号使用的信息时点，也独立重建账户净值，避免复权、分红和撮合错误制造收益。
+
+依据见[回测引擎](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/engine.py>)。
+
+**3. 策略比较：将择时、配置、调仓和风险约束分别比较。**
+
+前面的状态改造未得到统一优势，因此组合研究转而检验：更简单的价格趋势与风险配置，能否改善持有体验。
+
+这里要明确：**36组组合使用简单均线趋势，不依赖AR-GARCH状态。原CTA与状态改造CTA作为另外的对照。**
+
+36组来自：
+
+| 维度 | 候选 |
+|---|---|
+| 趋势 | 无过滤、MA120、MA60／120／240分档 |
+| 配置 | 等权、逆波动、风险平价 |
+| 调仓 | 周度、月度 |
+| ES | 关闭、1.5%预算 |
+
+\[ 3\times3\times2\times2=36 \]
+
+其中：
+
+- 逆波动使用最近60日收益标准差，基础权重与波动率成反比；
+
+- 风险平价使用120日协方差估计，考虑资产间相关性；
+
+- 单资产基础目标权重上限60%；
+
+- 三均线趋势通过几个，就保留几分之三的基础配置，不参与的部分留现金。
+
+代码的风险平价是先求等风险贡献，再施加权重上限，因此最终权重未必严格保持等风险贡献。
+
+候选评分为：
+
+\[ Score= \frac{CAGR}{\max(6\%,|最大回撤|)} -0.02\times年化换手 \]
+
+回撤分母设置下限，是为了避免接近空仓的策略仅凭极低回撤获得高分；换手惩罚体现成本和实施负担。它是预先固定的研究标准，不是唯一正确的目标函数。
+
+选择机制包括：
+
+- 用2015—2019年选择固定第一名或固定前三；
+
+- 每年用截至上年底的历史重新选择前三；
+
+- 相同基础规则的ES开关不能重复占用两个席位。
+
+**2015—2019年学习期用于组合候选评分，不意味着所有AR-GARCH参数只在这五年估计。AR-GARCH仍逐日使用各自滚动窗口估计。**
+
+一个很有价值的实际发现是：2020—2025年，滚动前三一直是同一组成员——月度风险平价、月度逆波动、周度风险平价，只是排名变化。所以固定前三与滚动前三表现接近，并没有充分检验“频繁切换成员”的能力。[年度选择记录](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/portfolio/selections.csv>)
+
+这条经历可以讲成：
+
+我限定候选集合、固定评分和时间顺序，保留所有结果，检验复杂选择机制是否值得保留；当前未观察到明确额外收益。
+
+**4. 风险评价：分别检验风险预测、风险约束和收益来源。**
+
+这三项在项目里承担不同作用。
+
+**风险预测回答：下一天可能亏多少？**
+
+代码对年度滚动前三组合的历史净值收益计算一日97.5% VaR／ES：
+
+- **历史模拟：**直接使用过去252日收益分布；
+
+- **EWMA正态：**用λ=0.94估计近期波动，再采用正态分布计算尾部风险；
+
+- **过滤历史模拟：**用各历史时点之前的60日波动标准化收益，再以近期EWMA波动恢复尺度。
+
+当前1,203次预测中，历史模拟和过滤历史模拟的VaR超限率约2.66%，EWMA正态约3.57%，理论目标为2.5%。这支持描述性比较，尚不足以宣布统计校准成功。[风险覆盖结果](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/portfolio/risk_coverage.csv>)
+
+**ES约束回答：目标仓位是否承担过多估计尾部风险？**
+
+配置时用过去252日三资产的同日收益作为联合冲击，对目标权重估计组合ES：
+
+\[ L_s=-w^\top r_s \]
+
+若ES超过净值1.5%，将目标权重按比例缩小：
+
+\[ w_{\text{new}} = w\times\min\left(1,\frac{1.5\%}{ES(w)}\right) \]
+
+联合冲击保留历史上资产共同涨跌的信息。这项约束在计划调仓时应用，不能理解为每天都保证损失不超过1.5%。
+
+另外设置训练期确定的固定降仓对照，检查ES的改善是否仅来自降低暴露。但当前展示的三均线逆波动组合中，ES与无ES目标相同，固定降仓比例也为1，故这组实验没有产生有效差异。[ES消融结果](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/portfolio/es_ablation.csv>)
+
+**收益归因和成本压力回答：赚的钱来自哪里，是否依赖理想费用？**
+
+对每只资产分解价格、分红和成本贡献，并比较零成本、基准成本、双倍成本。月度逆波动年化分别约7.67%、7.50%、7.33%，说明在所设成本范围内相对不敏感；这与原CTA的高换手形成对照。
+
+这条经历应表述为：
+
+我将风险预测和仓位约束分别验证，再通过成本和归因判断结果是否具有实际意义；没有把未触发的ES约束写成有效改进。
+
+**5. 研究结论：选择规则简单、风险收益较均衡的后续验证基线。**
+
+几组主要结果为：
+
+| 组合 | 年化收益 | 最大回撤 | 卡玛 |
+|---|---|---|---|
+| 原CTA等分初始资金 | −2.28% | −27.78% | −0.082 |
+| 改造CTA等分初始资金 | 3.33% | −10.74% | 0.310 |
+| 月度等权 | 9.14% | −11.69% | 0.782 |
+| 月度逆波动 | 7.50% | −4.83% | 1.552 |
+| 三均线趋势＋逆波动 | 5.22% | −4.83% | 1.081 |
+| 年度滚动前三 | 7.64% | −5.00% | 1.526 |
+
+这不是同风险暴露下的严格信号能力排名。保留逆波动作为基线，是因为它在当前结果中以较简单规则取得较好的风险收益平衡，并且：
+
+- 相较等权，减少收益的同时明显降低回撤；
+
+- 加入趋势后，收益下降，最大回撤没有明显改善；
+
+- 滚动前三收益略高，但规则更复杂，且成员集合没有变化；
+
+- 展示的ES约束没有产生差异。
+
+最终主方案实际执行是：**每月首个已观察到的交易日收盘，用60日波动计算逆波动权重，施加60%目标上限，下一交易日开盘调仓。它不需要AR-GARCH、RSI或ATR。**
+
+收益来源也应讲清楚：平均实际权重约17.3%股票、22.8%黄金、59.9%国债。累计收益约51.84%，其中股票、黄金、国债的净贡献分别约11.02、29.03、11.79个百分点。因此，低回撤与配置结构有关，累计收益也较依赖黄金行情。[组合收益归因](</<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results/portfolio/attribution.csv>)
+
+面试时可以这样收束：
+
+我的主要收获是建立了一套能否定复杂假设的研究流程。逐项消融表明，状态改造存在资产差异，更多交易不一定提高收益；组合对照则显示，简单低频逆波动配置在当前样本中更均衡。因此，我保留它作为后续验证基线，同时明确收益来源、成本、撮合和历史反馈的限制。2020—2025年已经被反复查看，所以这些属于回顾性研究结果，尚需冻结规则后的新增数据验证。
+
+简历五点中，建议将第三点加入“**三资产×八组状态消融**”，因为这正是你能够解释策略取舍、展示研究判断力的重要成果。
+
+消融之后，能不能再帮我修改一下研报的原策略呢，比如针对黄金，参数怎么设置、针对债券，参数怎么设置，既然你已经分析了结果哪些改善了，哪些没改善？我只想考虑多头，不然我感觉做完了消融实验，但是后面还是逆波动最好，我之前的都的策略白做了
+
+**▶ 8 previous messages**
+
+可以，我会把它做成“仅做多的分资产策略研究版”：先以现有消融结果确定候选规则，再检查黄金和国债各自的成本、入场及退出问题，实际运行对照。用已看过的结果调整规则属于新的回顾性研究，我会保留原策略和逆波动基准，明确哪些结果仍需要新数据验证。
+
+**▶ Ran 4 commands**
+
+- Ran `Get-Location; Get-ChildItem -LiteralPath 'E:\本地目录' -Force; Get-ChildItem -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily' -Name; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\improvement_signals.py','E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\run_improvements.py' -Encoding UTF8`
+
+- Ran `Get-ChildItem -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\cache' | Select-Object Name,Length; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\tests\test_engine.py' -Encoding UTF8; Get-Content -LiteralPath 'E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily\data\etf_daily.csv' -Encoding UTF8 -TotalCount 3; Get-ChildItem -LiteralPath 'D:\codex-task-cache\qr-review\packages' -Name -ErrorAction SilentlyContinue | Select-Object -First 5; rg --files -g AGENTS.md -g '!review_inputs/**' 'E:\本地目录'`
+
+- Ran `$source='E:\本地目录\review_inputs\cta_paper_daily_optimized\cta_paper_daily'; $target='E:\本地目录\cta_long_only_research'; New-Item -ItemType Directory -Path $target,"$target\data","$target\cache","$target\tests","$target\reference" -Force | Out-Null; Copy-Item -LiteralPath "$source\engine.py","$source\improvement_signals.py" -Destination $target; Copy-Item -LiteralPath "$source\data\etf_daily.csv","$source\data\etf_dividend.csv" -Destination "$target\data"; Get-ChildItem -LiteralPath "$source\cache" -Filter '*.json' | Copy-Item -Destination "$target\cache"; Copy-Item -LiteralPath "$source\results\portfolio\benchmark_invvol_monthly_nav.csv","$source\results\portfolio\benchmark_equal_monthly_nav.csv" -Destination "$target\reference"; Copy-Item -LiteralPath "$source\tests\test_engine.py" -Destination "$target\tests"; Copy-Item -LiteralPath "$source\results\improvements\summary.csv" -Destination "$target\reference\previous_improvements_summary.csv"; Get-ChildItem -LiteralPath "$source\results\improvements" -Filter '*_no_rho_10_nav.csv' | Copy-Item -Destination "$target\reference"; Get-ChildItem -LiteralPath "$source\results\improvements" -Filter '*_no_rho_3_nav.csv' | Copy-Item -Destination "$target\reference"; Get-ChildItem -LiteralPath "$source\results\improvements" -Filter '*_baseline_long_nav.csv' | Copy-Item -Destination "$target\reference"`
+
+- Ran `@'
+
+from pathlib import Path import pandas as pd p=Path(r'<本地目录>/review_inputs/cta_paper_daily_optimized/cta_paper_daily/results') for code,k in [('518880',3),('511010',1.5)]: s=pd.read_csv(p/f'{code}_signals.csv');s=s[s.date>='2020-01-01'];ratio=k*s.atr/s.adjclose print(code,'median ATRstop distance',ratio.median(),'fraction stopwidth below roundtrip .004',(ratio<.004).mean()) '@ | & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -`
+
+国债有一个值得修改的具体问题：原来的1.5倍ATR距离，中位数约为价格的0.23%；约91%的交易日，这个距离小于模型约0.4%的往返成本。我会比较放宽ATR、设置0.5%距离下限，以及慢均线加缓冲确认三种方案。黄金则保留“取消ρ门槛、10日确认”的核心规则，只比较少量退出设置。这样可以继续沿用前面消融得到的认识。
+
+**▶ Created 3 files, edited 3 files, ran 6 commands**
+
+- Wrote `./cta_long_only_research/engine.py` (+6 -2)
+
+- Wrote `./cta_long_only_research/requirements.txt` (+2 -0)
+
+- Wrote `./cta_long_only_research/tailored_long.py` (+282 -0)
+
+- Wrote `./cta_long_only_research/tests/test_tailored.py` (+50 -0)
+
+- Ran `& 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -m unittest discover -s tests -v`
+
+- Ran `& 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B tailored_long.py`
+
+- Ran `Get-ChildItem -LiteralPath 'E:\本地目录\cta_long_only_research\results' -Filter '*_nav.csv' | Measure-Object | Select-Object Count`
+
+- Ran `@'
+
+from pathlib import Path import pandas as pd p=Path('results');d=pd.read_csv(p/'summary.csv',dtype={'code':str}); cols=['code','strategy','cagr','max_drawdown','calmar','mean_exposure','annual_turnover','closed_trades'] print(d[d.period=='2020-end'][cols].round(5).to_string(index=False)) print('\nTRAIN:',pd.read_csv(p/'train_ranking.csv').query('eligible == True')[['code','strategy','score','cagr','max_drawdown','annual_turnover']].round(5).to_string(index=False)) print('\nSTRESS:',pd.read_csv(p/'cost_stress.csv')[['code','strategy','cost_multiplier','cagr','max_drawdown']].round(5).to_string(index=False)) '@ | & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -`
+
+- Wrote `./cta_long_only_research/engine.py` (+3 -2)
+
+- Wrote `./cta_long_only_research/tailored_long.py` (+5 -2)
+
+- Wrote `./cta_long_only_research/tests/test_tailored.py` (+14 -0)
+
+- Ran `& 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -m unittest discover -s tests -v`
+
+- Ran `& 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B tailored_long.py *> results\run.log`
+
+第一轮结果中，国债从改造前的年化约−4.53%、回撤23.49%，变为慢均线方案的年化约2.75%、回撤4.37%，换手降至约0.86倍。黄金放宽到4.5倍ATR后交易减少，但回撤反而扩大，所以暂不将它替代原来的3倍ATR。当前证据支持按资产设置规则，也提醒我们不能只按收益挑参数。
+
+**▶ Created 2 files, ran 4 commands**
+
+- Ran `Get-Content -LiteralPath 'E:\本地目录\cta_long_only_research\results\run.log' -Encoding UTF8 -Tail 6; Get-Content -LiteralPath 'E:\本地目录\cta_long_only_research\results\checks.csv' -Encoding UTF8 -TotalCount 4`
+
+- Ran `@'
+
+from pathlib import Path import pandas as pd from tailored_long import combine,evaluate p=Path('results') nav=combine([pd.read_csv(p/f'{c}_{v}_nav.csv',parse_dates=['date']) for c,v in [('510300','no_rho_3'),('518880','no_rho_10'),('511010','slow_ma120_band0.25pct_5d')]]) print('ANCHOR_COMBINED',evaluate(nav)) d=pd.read_csv(p/'summary.csv',dtype={'code':str}) print(d[(d.code=='518880')&d.strategy.isin(['no_rho_10','ar10_k4.5','ar10_k6','ar10_k4.5_ma120'])][['strategy','period','cagr','max_drawdown','annual_turnover']].to_string(index=False)) '@ | & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -`
+
+- Wrote `./cta_long_only_research/README.md` (+116 -0)
+
+- Ran `Get-Content -LiteralPath 'E:\本地目录\cta_long_only_research\results\run.log' -Encoding UTF8 -Tail 18; Get-ChildItem -LiteralPath 'E:\本地目录\cta_long_only_research' -Recurse -File | Measure-Object -Property Length -Sum | Select-Object Count,Sum`
+
+- Wrote `./cta_long_only_research/research_rules.json` (+33 -0)
+
+- Ran `& 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -m unittest discover -s tests -v *> results\tests.txt; @'
+
+from pathlib import Path import json,hashlib import pandas as pd,numpy as np p=Path('.') m=json.loads((p/'results/manifest.json').read_text(encoding='utf8')) for name,h in m['source_hashes'].items(): assert hashlib.sha256((p/name).read_bytes()).hexdigest()==h,name s=pd.read_csv(p/'results/summary.csv',dtype={'code':str}) assert len(s.query("period == '2020-end'"))==24 checks=pd.read_csv(p/'results/checks.csv') assert (checks.min_quantity>=0).all() assert checks.ledger_error.max()<1e-12 assert checks.prior_result_max_difference.dropna().max()<1e-12 rules=json.loads((p/'research_rules.json').read_text(encoding='utf8')) assert all(rules[c]['strategy'] in set(s[s.code==c].strategy) for c in ['510300','518880','511010']) stress=pd.read_csv(p/'results/cost_stress.csv') print('VERIFY',{'candidates':24,'checks':len(checks),'max_ledger_error':checks.ledger_error.max(),'max_reference_difference':checks.prior_result_max_difference.max(),'cost_rows':len(stress),'hashes_match':True}) print(stress[(stress.code==518880)&stress.strategy.eq('ar10_k4.5_ma120')][['cost_multiplier','cagr','max_drawdown']].to_string(index=False)) files=[x for x in p.rglob('*') if x.is_file() and '__pycache__' not in x.parts and x.name!='SHA256SUMS.txt'] (p/'SHA256SUMS.txt').write_text('\n'.join(hashlib.sha256(x.read_bytes()).hexdigest()+'  '+x.as_posix() for x in sorted(files)),encoding='utf8') '@ | & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -`
+
+24组对照已跑完，16项测试通过。采用“股票3日确认、黄金10日确认且保留3倍ATR、国债慢均线”的组合后，历史年化从原统一多头版的3.33%升至约6.45%，最大回撤从10.74%降至5.48%。这说明消融已经帮助改进了原策略；逆波动目前仍是更强的基准。我正在整理可直接运行的代码包和参数说明。
+
+**▶ Ran a command**
+
+- Ran `@'
+
+from pathlib import Path from zipfile import ZipFile,ZIP_DEFLATED root=Path(r'<本地目录>/cta_long_only_research') archive=root.parent/'cta_long_only_research.zip' files=[x for x in root.rglob('*') if x.is_file() and '__pycache__' not in x.parts] with ZipFile(archive,'w',compression=ZIP_DEFLATED,compresslevel=6) as z: for x in sorted(files): z.write(x,Path(root.name)/x.relative_to(root)) with ZipFile(archive) as z: assert z.testzip() is None assert len(z.namelist())==len(files) print('PACKAGE',archive,'BYTES',archive.stat().st_size,'FILES',len(files)) print((root/'results/tests.txt').read_text(encoding='utf8')[-150:]) '@ | & 'C:\Users\用户A\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -B -`
+
+**可以，而且我已经把分资产修改版写好、跑完了。**消融已经产生了实际作用：黄金保留更长确认期，国债降低交易频率，新组合相较原统一多头版本有明显改善。
+
+[下载完整代码包](</<本地目录>/cta_long_only_research.zip>) · [查看回测报告](</<本地目录>/cta_long_only_research/results/report.html>) · [参数与运行说明](</<本地目录>/cta_long_only_research/README.md>)
+
+所有实际回测均只做多／现金，原optimized工程保留。
+
+**黄金：保留AR-GARCH，取消ρ门槛，确认期保留10日。**
+
+建议作为后续验证主候选的设置：
+
+| 项目 | 设置 |
+|---|---|
+| 模型 | 原ER自适应窗口AR-GARCH |
+| ρ>0硬门槛 | 取消 |
+| 趋势确认 | 连续10日 |
+| 入场 | 确认上升趋势，且收盘高于自适应均线 |
+| RSI反转交易 | 取消 |
+| 退出 | 3倍ATR吊灯止损，只向盈利方向收紧 |
+
+理由是：**黄金取消ρ门槛的改善明显，但缩短确认和放宽止损都存在代价。**
+
+本轮进一步比较了退出参数：
+
+| 黄金规则 | 年化收益 | 最大回撤幅度 | 年化换手 |
+|---|---|---|---|
+| 原统一版：3日确认、ATR×3 | 6.90% | 22.91% | 18.32倍 |
+| **10日确认、ATR×3** | **10.11%** | **16.54%** | **14.17倍** |
+| 10日确认、ATR×4.5 | 10.44% | 20.85% | 8.30倍 |
+| 10日确认、ATR×6 | 9.36% | 20.20% | 6.22倍 |
+| 10日确认、ATR×4.5，加MA120入场过滤 | 11.30% | 17.24% | 7.95倍 |
+
+放宽ATR确实减少交易，但4.5倍版本的回撤扩大，因此我保留3倍作为主候选。新增MA120过滤的版本可以继续跟踪，暂不因为这段历史收益最高就直接替换主方案。
+
+**国债：将主候选改为慢趋势入场和退出。**
+
+国债的问题更偏向交易过密：原1.5倍ATR距离的中位数约为价格的0.23%，约91%的测试日小于模型约0.4%的往返成本。这为降低交易频率提供了具体依据。
+
+建议的研究参数是：
+
+| 项目 | 设置 |
+|---|---|
+| 价格 | 复权收盘价 |
+| 趋势均线 | MA120 |
+| 买入条件 | 连续5日收盘高于各自当日MA120的1.0025倍 |
+| 卖出条件 | 连续5日收盘低于各自当日MA120的0.9975倍 |
+| 执行 | 条件确认后的下一交易日开盘 |
+| ATR、RSI | 该版本关闭 |
+| 未满足入场条件 | 持有现金 |
+
+上下0.25%的缓冲和连续确认用于减少均线附近反复交易。实际结果如下：
+
+| 国债规则 | 年化收益 | 最大回撤幅度 | 年化换手 |
+|---|---|---|---|
+| 原统一版：3日确认、ATR×1.5 | −4.53% | 23.49% | 30.44倍 |
+| 10日确认、ATR×4.5 | 0.11% | 2.46% | 6.22倍 |
+| 上述规则加0.5%距离下限 | 0.33% | 2.50% | 5.53倍 |
+| **MA120、0.25%缓冲、5日确认** | **2.75%** | **4.37%** | **0.86倍** |
+| 买入持有 | 3.01% | 4.92% | 0.17倍 |
+
+这说明：放宽原ATR只能部分修复损耗，慢趋势更适合作为下一步研究方向。但它测试期只有两笔已平仓交易，尚不足以证明稳定的择时能力。
+
+**组合层面，前面的研究已经转化为可量化的改进。**
+
+股票沿用`no_rho_3`，黄金采用10日确认、3倍ATR，国债采用上述慢趋势。三个独立账户各分配1/3初始资金，期间不在账户间再平衡：
+
+| 组合 | 年化收益 | 最大回撤幅度 | 卡玛 |
+|---|---|---|---|
+| 原统一`no_rho_3`多头版 | 3.33% | 10.74% | 0.310 |
+| **本次分资产规则组合** | **6.45%** | **5.48%** | **1.177** |
+| 仅按2015—2019评分选取新候选 | 6.15% | 6.81% | 0.904 |
+| 月度逆波动基准 | 7.50% | 4.83% | 1.552 |
+
+以上均为2020—2025年，按252日年化，每次成交扣佣金1‰、滑点1‰。
+
+**所以，你之前的策略研究已经有了具体成果：从统一规则，发展到有诊断依据的分资产规则。**逆波动目前表现更好，可以继续承担配置基准的角色；你的CTA研究则回答了哪些状态条件、确认速度和退出机制适合不同资产。
+
+面试中可以这样表述：
+
+消融发现，黄金更需要取消收益自相关门槛并保留较长确认期，国债则需要减少过密交易。我据此建立仅多头的分资产规则，在当前历史区间内，将统一改造版组合的年化收益从3.33%提高到6.45%，最大回撤从10.74%降至5.48%，同时保留逆波动作为更强的配置基准。
+
+本次完成24组对照、16项测试，并核对了已有策略的逐日净值。新增规则参考过这段历史，结果属于回顾性改进；下一步应冻结候选验证新增数据。黄金对2025年行情的依赖、国债交易样本较少，是需要重点跟踪的两项限制。
+
+下一步应冻结候选验证新增数据。需要什么时间的什么数据，具体要求
+
+需要分成两段：**先补2026年历史行情做追加检验，再从规则冻结之后开始前瞻跟踪。**两者的证据强度不同。
+
+按今天 **2026年11月2日** 冻结规则，可以这样安排：
+
+| 用途 | 数据区间 | 如何解释 |
+|---|---|---|
+| 追加历史检验 | 2026年1月1日至冻结前最近一个已完成交易日 | 若尚未查看，可作为额外留出区间；仍属于事后历史验证 |
+| 前瞻跟踪 | 2026年11月3日起的实际交易日 | 规则冻结后逐日生成信号，才是严格意义的前瞻验证 |
+| 初步评价 | 累积约6个月 | 主要检查执行、成本及信号行为 |
+| 阶段评价 | 累积约12个月 | 评价收益、回撤和稳定性 |
+| 国债补充评价 | 持续跟踪更长时间及更多完整交易 | 当前交易次数少，不能仅凭一年就下定论 |
+
+**如果你已经查看过2026年的策略表现，就不能再把这段称为未见样本。**照样可以用于检验，但应如实标注。
+
+你首先需要收集下面三类数据。
+
+**1. 三只ETF的日行情，必须全部补齐。**
+
+标的保持不变：
+
+- `510300`：沪深300ETF；
+
+- `518880`：黄金ETF；
+
+- `511010`：国债ETF。
+
+继续使用原包的`etf_daily.csv`字段：
+
+| 字段 | 具体要求 |
+|---|---|
+| `date`、`code` | 交易日期；代码保留六位字符串 |
+| `open/high/low/close` | **未复权价格**，用于实际撮合；黄金ATR需要高低价 |
+| `adj_factor` | 与原历史口径一致，包含新增分红造成的调整 |
+| `volume` | 保留真实成交量及单位 |
+| `amount` | 尽量补真实成交额；容量研究需要，基础回测可先缺失 |
+| `trade_status` | 记录停牌或异常状态，不能用前值伪造正常行情 |
+
+具体质量要求：
+
+- 保留现有全部历史，只追加新增行情，不用2026年数据单独启动模型。
+
+- 日期排序、每个代码每天唯一；三资产交易日缺口逐项检查。
+
+- OHLC满足大小关系，价格为正。
+
+- 缺失价格不能直接前向填充后当作可成交行情。
+
+- 尽量沿用原数据源；换源时先核对重叠区间。
+
+- 若历史数据被修订，单独记录修订，不能静默覆盖原始快照。
+
+**2. 现金分红数据，覆盖新期间全部事件。**
+
+继续维护`etf_dividend.csv`：
+
+```text
+code, record_date, ex_date, pay_date,
+cash_dividend_per_unit, source
+```
+
+重点要求：
+
+- 金额统一为**每份现金分红**，不能把“每10份”直接写入。
+
+- 区分登记日、除息日和到账日。
+
+- 分红记录与复权因子同步更新。
+
+- 保存来源和抓取日期，最好归档基金公告。
+
+- 已知未来分红不能提前计入收益；到账前不能用于买入。
+
+你现有分红表已包含部分2026年事件，仍需检查是否完整，不能只补行情。
+
+**3. 前瞻期间的信号与模拟成交记录。**
+
+从冻结后开始，每天保存：
+
+| 时点 | 保存内容 |
+|---|---|
+| 当日收盘后 | 当时可见数据、模型估计、信号、持仓、次日订单及已确定止损 |
+| 下一交易日 | 参考开盘价、模拟成交价、费用、是否触发退出 |
+| 每日结束 | 现金、份额、分红应收、净值及基准净值 |
+
+**关键是当天留下记录。**几个月后再重新跑一次回测，无法单独证明这些信号当时已经生成。
+
+这轮验证**不需要宏观数据**，因为目前冻结的分资产策略没有使用宏观变量。宏观择时应另开实验，避免中途改变验证对象。
+
+冻结时，建议固定以下内容：
+
+- 股票：`no_rho_3`，ATR倍数4.5；
+
+- 黄金：`no_rho_10`，ATR倍数3；
+
+- 国债：MA120、上下0.25%缓冲、连续5日确认；
+
+- 费用、滑点、现金收益和成交时序；
+
+- 三个子账户各1/3初始资金，期间不跨账户再平衡；
+
+- 同时跟踪买入持有、原统一多头版、月度逆波动基准。
+
+黄金新增的MA120过滤等候选可以并行观察，但**不能看到表现更好就回头替换主策略的历史记录**。
+
+还有一个代码要求：追加行情后，原AR-GARCH缓存的输入哈希会失配，必须用原工程重新估计匹配缓存，不能重命名旧缓存。前瞻检验从首日建仓还是继承既有持仓，也要提前固定；建议主账户从冻结后的首个执行日以现金启动。
+
+**你现在最直接的数据任务：补齐三只ETF的2026年至今未复权日行情、复权因子及全部分红，再建立冻结后逐日追加的数据与信号档案。**
+
+
+---
+
+# 第三部分：report（仅多头分资产策略研究，HTML 全文）
+
+<!-- 由 report_wechat.html 经 docs/html_to_md.py 结构化转换，内容未删改 -->
+
+# report
+
+仅多头分资产策略研究
+
+## 仅多头分资产策略：回顾性研究
+
+候选规则在查看过2020—2025历史结果后设计。训练期排序只用2015—2019，但这不消除研究设计的历史反馈。全部候选保留；不将测试期赢家写成预先最优。现金零收益，按252日年化；每次佣金1‰、滑点1‰。
+
+## 预先给定研究方案与训练期选择
+
+| code | train_end | train_selected | research_preset |
+|---|---|---|---|
+| 510300 | 2019-12-31 | no_rho_3 | no_rho_3 |
+| 518880 | 2019-12-31 | ar10_k6 | ar10_k4.5 |
+| 511010 | 2019-12-31 | slow_ma120_band0.25pct_5d | slow_ma120_band0.25pct_5d |
+
+## 全部候选：2020至终点
+
+| code | strategy | cagr | max_drawdown | calmar | mean_exposure | annual_turnover | closed_trades |
+|---|---|---|---|---|---|---|---|
+| 510300 | baseline_long | 6.23% | -16.98% | 0.367 | 32.70% | 11.406 | 33.0 |
+| 510300 | neutral_10 | 3.60% | -10.10% | 0.356 | 14.83% | 1.371 | 4.0 |
+| 510300 | no_rho_10 | 3.54% | -12.81% | 0.277 | 22.45% | 2.232 | 6.0 |
+| 510300 | no_rho_3 | 5.86% | -12.49% | 0.470 | 30.22% | 2.577 | 7.0 |
+| 510300 | buyhold | 3.80% | -41.01% | 0.093 | 95.99% | 0.173 | 0.0 |
+| 518880 | baseline_long | 0.35% | -19.51% | 0.018 | 10.03% | 9.343 | 27.0 |
+| 518880 | neutral_10 | -3.33% | -20.32% | -0.164 | 2.82% | 2.076 | 6.0 |
+| 518880 | no_rho_10 | 10.11% | -16.54% | 0.611 | 39.11% | 14.169 | 41.0 |
+| 518880 | no_rho_3 | 6.90% | -22.91% | 0.301 | 46.60% | 18.318 | 53.0 |
+| 518880 | buyhold | 19.18% | -20.47% | 0.937 | 100.00% | 0.173 | 0.0 |
+| 518880 | ar10_k4.5 | 10.44% | -20.85% | 0.501 | 44.19% | 8.300 | 24.0 |
+| 518880 | ar10_k6 | 9.36% | -20.20% | 0.463 | 46.05% | 6.217 | 18.0 |
+| 518880 | ar10_k4.5_ma120 | 11.30% | -17.24% | 0.655 | 43.09% | 7.953 | 23.0 |
+| 511010 | baseline_long | -3.60% | -19.13% | -0.188 | 25.64% | 22.487 | 65.0 |
+| 511010 | neutral_10 | -2.65% | -14.34% | -0.184 | 20.00% | 17.296 | 50.0 |
+| 511010 | no_rho_10 | -3.54% | -18.98% | -0.187 | 29.42% | 24.906 | 72.0 |
+| 511010 | no_rho_3 | -4.53% | -23.49% | -0.193 | 36.70% | 30.440 | 88.0 |
+| 511010 | buyhold | 3.01% | -4.92% | 0.611 | 99.95% | 0.173 | 0.0 |
+| 511010 | ar10_k4.5 | 0.11% | -2.46% | 0.043 | 41.92% | 6.224 | 18.0 |
+| 511010 | ar10_k4.5_floor0.5pct | 0.33% | -2.50% | 0.132 | 43.23% | 5.532 | 16.0 |
+| 511010 | slow_ma60_band0.25pct_5d | 2.79% | -3.26% | 0.856 | 83.18% | 1.211 | 3.0 |
+| 511010 | slow_ma120_band0.25pct_5d | 2.75% | -4.37% | 0.629 | 86.28% | 0.865 | 2.0 |
+| 511010 | slow_ma240_band0.25pct_5d | 2.67% | -5.09% | 0.524 | 89.92% | 0.519 | 1.0 |
+| 511010 | slow_ma120_band0.5pct_5d | 2.84% | -4.74% | 0.598 | 89.02% | 0.519 | 1.0 |
+
+## 组合比较
+
+新策略组合为各1/3初始资金的独立账户，期间不在账户间再平衡；逆波动基准的配置机制不同，不能仅凭收益差认定择时alpha。
+
+| strategy | period | cagr | max_drawdown | calmar | annual_turnover |
+|---|---|---|---|---|---|
+| tailored_preset_equal_initial | 2020-end | 6.58% | -6.47% | 1.016 | 3.965 |
+| tailored_preset_equal_initial | 2020-2024_without_2025 | 3.20% | -6.47% | 0.495 | 3.672 |
+| train_selected_equal_initial | 2020-end | 6.15% | -6.81% | 0.904 | 3.255 |
+| train_selected_equal_initial | 2020-2024_without_2025 | 2.84% | -6.81% | 0.416 | 3.002 |
+| ablation_anchor_equal_initial | 2020-end | 6.45% | -5.48% | 1.177 | 5.964 |
+| ablation_anchor_equal_initial | 2020-2024_without_2025 | 3.22% | -5.48% | 0.587 | 5.481 |
+| old_no_rho_3_equal_initial | 2020-end | 3.33% | -10.74% | 0.310 | 15.813 |
+| old_no_rho_3_equal_initial | 2020-2024_without_2025 | -0.06% | -10.74% | -0.006 | 15.516 |
+| buyhold_equal_initial | 2020-end | 9.92% | -12.43% | 0.798 | 0.173 |
+| buyhold_equal_initial | 2020-2024_without_2025 | 6.03% | -12.43% | 0.485 | 0.208 |
+| benchmark_invvol_monthly | 2020-end | 7.50% | -4.83% | 1.552 | 0.798 |
+| benchmark_equal_monthly | 2020-end | 9.14% | -11.69% | 0.782 | 0.472 |
+
+## 排除2025年的敏感性检查
+
+| code | strategy | cagr | max_drawdown | calmar | mean_exposure | annual_turnover |
+|---|---|---|---|---|---|---|
+| 510300 | baseline_long | 7.16% | -16.98% | 0.422 | 36.94% | 12.862 |
+| 510300 | neutral_10 | 4.33% | -10.10% | 0.429 | 17.80% | 1.646 |
+| 510300 | no_rho_10 | 4.13% | -12.81% | 0.323 | 21.26% | 2.058 |
+| 510300 | no_rho_3 | 3.35% | -12.49% | 0.268 | 26.38% | 2.473 |
+| 510300 | buyhold | 0.86% | -41.01% | 0.021 | 96.62% | 0.208 |
+| 518880 | baseline_long | -0.88% | -19.51% | -0.045 | 11.47% | 10.385 |
+| 518880 | neutral_10 | -3.99% | -20.32% | -0.196 | 3.38% | 2.492 |
+| 518880 | no_rho_10 | 3.15% | -16.54% | 0.190 | 34.57% | 13.065 |
+| 518880 | no_rho_3 | 0.30% | -22.91% | 0.013 | 42.33% | 17.215 |
+| 518880 | buyhold | 12.41% | -20.47% | 0.606 | 100.00% | 0.208 |
+| 518880 | ar10_k4.5 | 3.10% | -20.85% | 0.149 | 39.27% | 7.681 |
+| 518880 | ar10_k6 | 1.98% | -20.20% | 0.098 | 40.84% | 5.600 |
+| 518880 | ar10_k4.5_ma120 | 4.07% | -17.24% | 0.236 | 37.95% | 7.265 |
+| 511010 | baseline_long | -3.41% | -16.06% | -0.212 | 25.50% | 21.596 |
+| 511010 | neutral_10 | -2.30% | -11.31% | -0.204 | 18.89% | 15.780 |
+| 511010 | no_rho_10 | -3.38% | -16.02% | -0.211 | 30.20% | 24.916 |
+| 511010 | no_rho_3 | -4.40% | -19.63% | -0.224 | 38.53% | 30.936 |
+| 511010 | buyhold | 3.47% | -4.92% | 0.705 | 100.00% | 0.208 |
+| 511010 | ar10_k4.5 | 0.41% | -2.46% | 0.165 | 43.32% | 6.019 |
+| 511010 | ar10_k4.5_floor0.5pct | 0.70% | -2.50% | 0.280 | 44.80% | 5.188 |
+| 511010 | slow_ma60_band0.25pct_5d | 3.47% | -3.26% | 1.064 | 82.34% | 1.038 |
+| 511010 | slow_ma120_band0.25pct_5d | 3.16% | -4.37% | 0.723 | 83.58% | 1.038 |
+| 511010 | slow_ma240_band0.25pct_5d | 3.06% | -5.09% | 0.602 | 87.95% | 0.623 |
+| 511010 | slow_ma120_band0.5pct_5d | 3.27% | -4.74% | 0.688 | 86.88% | 0.623 |
+
+## 固定信号的成本压力
+
+| code | strategy | cost_multiplier | cagr | max_drawdown | annual_turnover |
+|---|---|---|---|---|---|
+| 510300 | no_rho_3 | 0.0 | 6.41% | -11.66% | 2.580 |
+| 510300 | no_rho_3 | 1.0 | 5.86% | -12.49% | 2.577 |
+| 510300 | no_rho_3 | 2.0 | 5.32% | -13.36% | 2.574 |
+| 510300 | buyhold | 0.0 | 3.84% | -41.01% | 0.173 |
+| 510300 | buyhold | 1.0 | 3.80% | -41.01% | 0.173 |
+| 510300 | buyhold | 2.0 | 3.77% | -41.01% | 0.173 |
+| 518880 | ar10_k4.5 | 0.0 | 12.29% | -17.54% | 8.308 |
+| 518880 | ar10_k4.5 | 1.0 | 10.44% | -20.85% | 8.300 |
+| 518880 | ar10_k4.5 | 2.0 | 8.62% | -24.26% | 8.291 |
+| 518880 | ar10_k6 | 0.0 | 10.73% | -18.88% | 6.223 |
+| 518880 | ar10_k6 | 1.0 | 9.36% | -20.20% | 6.217 |
+| 518880 | ar10_k6 | 2.0 | 8.01% | -21.78% | 6.211 |
+| 518880 | no_rho_10 | 0.0 | 13.28% | -14.75% | 14.183 |
+| 518880 | no_rho_10 | 1.0 | 10.11% | -16.54% | 14.169 |
+| 518880 | no_rho_10 | 2.0 | 7.03% | -20.89% | 14.155 |
+| 518880 | buyhold | 0.0 | 19.22% | -20.47% | 0.173 |
+| 518880 | buyhold | 1.0 | 19.18% | -20.47% | 0.173 |
+| 518880 | buyhold | 2.0 | 19.13% | -20.47% | 0.173 |
+| 518880 | ar10_k4.5_ma120 | 0.0 | 13.09% | -14.11% | 7.961 |
+| 518880 | ar10_k4.5_ma120 | 1.0 | 11.30% | -17.24% | 7.953 |
+| 518880 | ar10_k4.5_ma120 | 2.0 | 9.54% | -20.48% | 7.946 |
+| 511010 | slow_ma120_band0.25pct_5d | 0.0 | 2.93% | -3.98% | 0.866 |
+| 511010 | slow_ma120_band0.25pct_5d | 1.0 | 2.75% | -4.37% | 0.865 |
+| 511010 | slow_ma120_band0.25pct_5d | 2.0 | 2.57% | -4.75% | 0.864 |
+| 511010 | buyhold | 0.0 | 3.04% | -4.92% | 0.173 |
+| 511010 | buyhold | 1.0 | 3.01% | -4.92% | 0.173 |
+| 511010 | buyhold | 2.0 | 2.97% | -4.92% | 0.173 |
+| 511010 | ar10_k4.5 | 0.0 | 1.36% | -1.56% | 6.231 |
+| 511010 | ar10_k4.5 | 1.0 | 0.11% | -2.46% | 6.224 |
+| 511010 | ar10_k4.5 | 2.0 | -1.14% | -6.76% | 6.218 |
+| 511010 | ar10_k4.5_floor0.5pct | 0.0 | 1.45% | -1.56% | 5.538 |
+| 511010 | ar10_k4.5_floor0.5pct | 1.0 | 0.33% | -2.50% | 5.532 |
+| 511010 | ar10_k4.5_floor0.5pct | 2.0 | -0.78% | -4.79% | 5.527 |
+| 511010 | slow_ma60_band0.25pct_5d | 0.0 | 3.04% | -3.06% | 1.212 |
+| 511010 | slow_ma60_band0.25pct_5d | 1.0 | 2.79% | -3.26% | 1.211 |
+| 511010 | slow_ma60_band0.25pct_5d | 2.0 | 2.55% | -3.65% | 1.210 |
+| 511010 | slow_ma240_band0.25pct_5d | 0.0 | 2.77% | -4.92% | 0.520 |
+| 511010 | slow_ma240_band0.25pct_5d | 1.0 | 2.67% | -5.09% | 0.519 |
+| 511010 | slow_ma240_band0.25pct_5d | 2.0 | 2.56% | -5.47% | 0.518 |
+| 511010 | slow_ma120_band0.5pct_5d | 0.0 | 2.94% | -4.40% | 0.520 |
+| 511010 | slow_ma120_band0.5pct_5d | 1.0 | 2.84% | -4.74% | 0.519 |
+| 511010 | slow_ma120_band0.5pct_5d | 2.0 | 2.73% | -5.13% | 0.518 |
+
+## 逐年收益
+
+| code | strategy | year | total_return | max_drawdown | annual_turnover |
+|---|---|---|---|---|---|
+| 510300 | baseline_long | 2020 | 39.79% | -9.46% | 11.377 |
+| 510300 | baseline_long | 2021 | 7.21% | -9.27% | 10.299 |
+| 510300 | baseline_long | 2022 | -7.38% | -10.77% | 18.725 |
+| 510300 | baseline_long | 2023 | -2.80% | -7.32% | 13.525 |
+| 510300 | baseline_long | 2024 | 3.36% | -4.35% | 10.403 |
+| 510300 | baseline_long | 2025 | 1.63% | -3.32% | 4.144 |
+| 510300 | neutral_10 | 2020 | 19.41% | -10.10% | 5.161 |
+| 510300 | neutral_10 | 2021 | 2.70% | -9.49% | 3.048 |
+| 510300 | neutral_10 | 2022 | 0.00% | 0.00% | 0.000 |
+| 510300 | neutral_10 | 2023 | 0.00% | 0.00% | 0.000 |
+| 510300 | neutral_10 | 2024 | 0.00% | 0.00% | 0.000 |
+| 510300 | neutral_10 | 2025 | 0.00% | 0.00% | 0.000 |
+| 510300 | no_rho_10 | 2020 | 18.31% | -12.81% | 7.215 |
+| 510300 | no_rho_10 | 2021 | 2.70% | -9.49% | 3.048 |
+| 510300 | no_rho_10 | 2022 | 0.00% | 0.00% | 0.000 |
+| 510300 | no_rho_10 | 2023 | 0.00% | 0.00% | 0.000 |
+| 510300 | no_rho_10 | 2024 | 0.00% | 0.00% | 0.000 |
+| 510300 | no_rho_10 | 2025 | 0.63% | -7.44% | 3.099 |
+| 510300 | no_rho_3 | 2020 | 20.40% | -12.37% | 7.215 |
+| 510300 | no_rho_3 | 2021 | 3.16% | -10.03% | 3.048 |
+| 510300 | no_rho_3 | 2022 | 0.00% | 0.00% | 0.000 |
+| 510300 | no_rho_3 | 2023 | -5.67% | -5.67% | 2.078 |
+| 510300 | no_rho_3 | 2024 | 0.00% | 0.00% | 0.000 |
+| 510300 | no_rho_3 | 2025 | 18.60% | -7.44% | 3.099 |
+| 510300 | buyhold | 2020 | 28.07% | -16.09% | 1.035 |
+| 510300 | buyhold | 2021 | -3.92% | -16.98% | 0.000 |
+| 510300 | buyhold | 2022 | -19.59% | -26.93% | 0.000 |
+| 510300 | buyhold | 2023 | -9.18% | -18.93% | 0.000 |
+| 510300 | buyhold | 2024 | 15.96% | -11.70% | 0.000 |
+| 510300 | buyhold | 2025 | 19.04% | -9.43% | 0.000 |
+| 518880 | baseline_long | 2020 | -6.04% | -15.47% | 16.572 |
+| 518880 | baseline_long | 2021 | -4.38% | -7.87% | 14.504 |
+| 518880 | baseline_long | 2022 | -2.44% | -4.81% | 6.242 |
+| 518880 | baseline_long | 2023 | 3.54% | -0.27% | 8.322 |
+| 518880 | baseline_long | 2024 | 5.58% | -2.76% | 6.241 |
+| 518880 | baseline_long | 2025 | 6.50% | -0.45% | 4.144 |
+| 518880 | neutral_10 | 2020 | -14.59% | -14.69% | 8.284 |
+| 518880 | neutral_10 | 2021 | -5.30% | -5.30% | 2.072 |
+| 518880 | neutral_10 | 2022 | 0.00% | 0.00% | 0.000 |
+| 518880 | neutral_10 | 2023 | 0.00% | 0.00% | 0.000 |
+| 518880 | neutral_10 | 2024 | 1.66% | -2.09% | 2.080 |
+| 518880 | neutral_10 | 2025 | 0.00% | 0.00% | 0.000 |
+| 518880 | no_rho_10 | 2020 | 4.03% | -11.58% | 24.823 |
+| 518880 | no_rho_10 | 2021 | -5.30% | -5.30% | 2.072 |
+| 518880 | no_rho_10 | 2022 | 0.20% | 0.00% | 1.039 |
+| 518880 | no_rho_10 | 2023 | 2.09% | -5.14% | 16.611 |
+| 518880 | no_rho_10 | 2024 | 15.16% | -7.09% | 20.775 |
+| 518880 | no_rho_10 | 2025 | 50.25% | -6.81% | 19.677 |
+| 518880 | no_rho_3 | 2020 | -7.76% | -14.84% | 32.060 |
+| 518880 | no_rho_3 | 2021 | -5.91% | -7.85% | 3.104 |
+| 518880 | no_rho_3 | 2022 | -3.88% | -5.88% | 7.281 |
+| 518880 | no_rho_3 | 2023 | 4.87% | -4.41% | 20.772 |
+| 518880 | no_rho_3 | 2024 | 15.95% | -7.90% | 22.855 |
+| 518880 | no_rho_3 | 2025 | 44.91% | -8.33% | 23.821 |
+| 518880 | buyhold | 2020 | 13.98% | -17.13% | 1.035 |
+| 518880 | buyhold | 2021 | -5.38% | -11.42% | 0.000 |
+| 518880 | buyhold | 2022 | 9.42% | -11.38% | 0.000 |
+| 518880 | buyhold | 2023 | 16.61% | -5.35% | 0.000 |
+| 518880 | buyhold | 2024 | 27.54% | -7.49% | 0.000 |
+| 518880 | buyhold | 2025 | 56.90% | -11.53% | 0.000 |
+| 518880 | ar10_k4.5 | 2020 | 2.37% | -14.13% | 12.424 |
+| 518880 | ar10_k4.5 | 2021 | -5.30% | -5.30% | 2.072 |
+| 518880 | ar10_k4.5 | 2022 | 0.20% | 0.00% | 1.039 |
+| 518880 | ar10_k4.5 | 2023 | -1.34% | -7.12% | 14.558 |
+| 518880 | ar10_k4.5 | 2024 | 20.87% | -6.84% | 8.314 |
+| 518880 | ar10_k4.5 | 2025 | 53.16% | -6.95% | 11.385 |
+| 518880 | ar10_k6 | 2020 | -1.14% | -15.50% | 10.353 |
+| 518880 | ar10_k6 | 2021 | -5.34% | -5.34% | 2.072 |
+| 518880 | ar10_k6 | 2022 | 0.20% | 0.00% | 1.039 |
+| 518880 | ar10_k6 | 2023 | 3.53% | -6.89% | 6.236 |
+| 518880 | ar10_k6 | 2024 | 13.18% | -9.47% | 8.295 |
+| 518880 | ar10_k6 | 2025 | 52.56% | -7.37% | 9.293 |
+| 518880 | ar10_k4.5_ma120 | 2020 | 1.37% | -14.97% | 12.424 |
+| 518880 | ar10_k4.5_ma120 | 2021 | 0.00% | 0.00% | 0.000 |
+| 518880 | ar10_k4.5_ma120 | 2022 | 0.20% | 0.00% | 1.039 |
+| 518880 | ar10_k4.5_ma120 | 2023 | -1.34% | -7.12% | 14.558 |
+| 518880 | ar10_k4.5_ma120 | 2024 | 20.87% | -6.84% | 8.314 |
+| 518880 | ar10_k4.5_ma120 | 2025 | 53.16% | -6.95% | 11.385 |
+| 511010 | baseline_long | 2020 | -3.90% | -3.95% | 12.432 |
+| 511010 | baseline_long | 2021 | -2.10% | -2.95% | 17.605 |
+| 511010 | baseline_long | 2022 | -4.81% | -5.00% | 30.157 |
+| 511010 | baseline_long | 2023 | -3.08% | -3.22% | 22.882 |
+| 511010 | baseline_long | 2024 | -2.49% | -3.26% | 24.958 |
+| 511010 | baseline_long | 2025 | -4.42% | -4.52% | 26.929 |
+| 511010 | neutral_10 | 2020 | 0.00% | 0.00% | 0.000 |
+| 511010 | neutral_10 | 2021 | -1.92% | -2.74% | 15.533 |
+| 511010 | neutral_10 | 2022 | -4.41% | -4.41% | 21.834 |
+| 511010 | neutral_10 | 2023 | -2.22% | -2.36% | 16.640 |
+| 511010 | neutral_10 | 2024 | -2.49% | -3.26% | 24.958 |
+| 511010 | neutral_10 | 2025 | -4.19% | -4.29% | 24.857 |
+| 511010 | no_rho_10 | 2020 | 0.00% | 0.00% | 0.000 |
+| 511010 | no_rho_10 | 2021 | -4.06% | -5.09% | 25.888 |
+| 511010 | no_rho_10 | 2022 | -5.54% | -6.21% | 34.314 |
+| 511010 | no_rho_10 | 2023 | -2.36% | -2.94% | 19.760 |
+| 511010 | no_rho_10 | 2024 | -4.23% | -4.88% | 44.715 |
+| 511010 | no_rho_10 | 2025 | -4.19% | -4.29% | 24.857 |
+| 511010 | no_rho_3 | 2020 | -0.68% | -0.68% | 2.070 |
+| 511010 | no_rho_3 | 2021 | -4.95% | -5.76% | 30.027 |
+| 511010 | no_rho_3 | 2022 | -6.75% | -7.41% | 42.635 |
+| 511010 | no_rho_3 | 2023 | -3.62% | -4.32% | 30.158 |
+| 511010 | no_rho_3 | 2024 | -5.07% | -5.26% | 49.915 |
+| 511010 | no_rho_3 | 2025 | -5.00% | -5.38% | 27.964 |
+| 511010 | buyhold | 2020 | 1.23% | -4.92% | 1.035 |
+| 511010 | buyhold | 2021 | 4.26% | -0.77% | 0.000 |
+| 511010 | buyhold | 2022 | 2.08% | -1.21% | 0.000 |
+| 511010 | buyhold | 2023 | 3.30% | -0.96% | 0.000 |
+| 511010 | buyhold | 2024 | 5.89% | -0.87% | 0.000 |
+| 511010 | buyhold | 2025 | 0.70% | -1.56% | 0.000 |
+| 511010 | ar10_k4.5 | 2020 | 0.00% | 0.00% | 0.000 |
+| 511010 | ar10_k4.5 | 2021 | -0.61% | -2.46% | 7.242 |
+| 511010 | ar10_k4.5 | 2022 | 0.18% | -1.33% | 7.280 |
+| 511010 | ar10_k4.5 | 2023 | 0.23% | -1.91% | 7.273 |
+| 511010 | ar10_k4.5 | 2024 | 2.18% | -1.95% | 8.319 |
+| 511010 | ar10_k4.5 | 2025 | -1.33% | -1.97% | 7.250 |
+| 511010 | ar10_k4.5_floor0.5pct | 2020 | 0.00% | 0.00% | 0.000 |
+| 511010 | ar10_k4.5_floor0.5pct | 2021 | -0.65% | -2.50% | 7.242 |
+| 511010 | ar10_k4.5_floor0.5pct | 2022 | 0.18% | -1.33% | 7.280 |
+| 511010 | ar10_k4.5_floor0.5pct | 2023 | 1.05% | -1.64% | 5.193 |
+| 511010 | ar10_k4.5_floor0.5pct | 2024 | 2.83% | -1.95% | 6.239 |
+| 511010 | ar10_k4.5_floor0.5pct | 2025 | -1.45% | -1.97% | 7.250 |
+| 511010 | slow_ma60_band0.25pct_5d | 2020 | 2.22% | -3.15% | 3.107 |
+| 511010 | slow_ma60_band0.25pct_5d | 2021 | 4.26% | -0.77% | 0.000 |
+| 511010 | slow_ma60_band0.25pct_5d | 2022 | 1.46% | -1.08% | 1.041 |
+| 511010 | slow_ma60_band0.25pct_5d | 2023 | 2.93% | -0.96% | 1.039 |
+| 511010 | slow_ma60_band0.25pct_5d | 2024 | 5.89% | -0.87% | 0.000 |
+| 511010 | slow_ma60_band0.25pct_5d | 2025 | -0.51% | -1.82% | 2.072 |
+| 511010 | slow_ma120_band0.25pct_5d | 2020 | 1.29% | -4.00% | 2.072 |
+| 511010 | slow_ma120_band0.25pct_5d | 2021 | 3.87% | -0.77% | 1.035 |
+| 511010 | slow_ma120_band0.25pct_5d | 2022 | 1.36% | -1.21% | 1.041 |
+| 511010 | slow_ma120_band0.25pct_5d | 2023 | 2.85% | -0.96% | 1.039 |
+| 511010 | slow_ma120_band0.25pct_5d | 2024 | 5.89% | -0.87% | 0.000 |
+| 511010 | slow_ma120_band0.25pct_5d | 2025 | 0.70% | -1.56% | 0.000 |
+| 511010 | slow_ma240_band0.25pct_5d | 2020 | 0.29% | -4.94% | 2.072 |
+| 511010 | slow_ma240_band0.25pct_5d | 2021 | 3.24% | -0.77% | 1.035 |
+| 511010 | slow_ma240_band0.25pct_5d | 2022 | 2.08% | -1.21% | 0.000 |
+| 511010 | slow_ma240_band0.25pct_5d | 2023 | 3.30% | -0.96% | 0.000 |
+| 511010 | slow_ma240_band0.25pct_5d | 2024 | 5.89% | -0.87% | 0.000 |
+| 511010 | slow_ma240_band0.25pct_5d | 2025 | 0.70% | -1.56% | 0.000 |
+| 511010 | slow_ma120_band0.5pct_5d | 2020 | 0.93% | -4.40% | 2.072 |
+| 511010 | slow_ma120_band0.5pct_5d | 2021 | 3.57% | -0.77% | 1.035 |
+| 511010 | slow_ma120_band0.5pct_5d | 2022 | 2.08% | -1.21% | 0.000 |
+| 511010 | slow_ma120_band0.5pct_5d | 2023 | 3.30% | -0.96% | 0.000 |
+| 511010 | slow_ma120_band0.5pct_5d | 2024 | 5.89% | -0.87% | 0.000 |
+| 511010 | slow_ma120_band0.5pct_5d | 2025 | 0.70% | -1.56% | 0.000 |
+
+## 规则与执行
+
+黄金以no_rho_10为锚，比较ATR倍数3/4.5/6和一个MA120入场过滤；国债比较宽ATR、0.5%价格距离下限及MA60/120/240缓冲确认。慢均线版本只有价格确认退出，没有ATR或RSI退出。状态失效不使AR版本立即清仓。新开仓当日不做盘中止损，日内不重入。国债0.5%距离下限不等于保证亏损上限，且随ATR及价格更新。
+
+扩展行情前必须重新生成匹配的原模型缓存。没有加入宏观，没有新增全局最优或实盘业绩声明。
+
+
+---
+
+# 第四部分：原包 README（cta_long_only_research/README.md 全文）
+
+
+本版将原时序CTA的状态消融继续发展为分资产研究：股票保留较快趋势确认，黄金保留AR-GARCH状态但取消rho正值门槛，国债重点降低入场与退出频率。实际运行已完成，所有候选及失败结果均保留。
+
+**研究状态：回顾性实验。** 规则设计参考了已经查看过的2020—2025结果。即使新增候选按2015—2019选择，也不能将后段包装成完全独立样本外。没有保证跑赢买入持有或逆波动，没有加入宏观数据。
+
+## 先看哪里
+
+- `results/report.html`：离线中文报告，包含全部候选、组合比较、去掉2025年的敏感性、成本压力及逐年结果。
+- `results/summary.csv`：24个资产/规则组合，每个有全段和分阶段结果。
+- `results/selections.csv`：固定研究方案与只用2015—2019评分选择的规则。
+- `results/portfolio_comparison.csv`：各1/3初始资金的策略组合，对照原no_rho_3、买入持有及原月度配置。
+- `results/checks.csv`：非负持仓、会计误差、原已有策略的逐日净值匹配。
+- `results/design.json`、`results/manifest.json`：候选定义、成本、设计边界、代码/数据/缓存哈希。
+
+## 运行
+
+需要已有Python 3.10+、numpy、pandas。本入口不需要scipy、g++，不重新估计AR-GARCH。新增依赖环境与缓存应放在D盘；无需为运行本包在C盘安装任何组件。
+
+在包目录打开PowerShell，运行：
+
+```powershell
+python -B tailored_long.py
+python -B -m unittest discover -s tests -v
+```
+
+已有结果可以直接阅读。每次运行重新生成本包自己的results，不覆盖原optimized工程。
+
+## 基于现有消融的主候选
+
+这组规则用于继续验证，不宣称参数最优。
+
+| 资产 | 规则 | 入场 | 退出 |
+|---|---|---|---|
+| 510300 | `no_rho_3`，k=4.5 | 原TSI及OR风险条件，取消rho>0，连续3日确认；收盘高于ER自适应均线 | 原ATR吊灯，仅收紧 |
+| 518880 | `no_rho_10`，k=3 | 同上，但保留连续10日确认；非趋势状态不做RSI反转 | 原ATR吊灯，仅收紧 |
+| 511010 | `slow_ma120_band0.25pct_5d` | 连续5个收盘高于各自当日MA120的1.0025倍 | 连续5个收盘低于各自当日MA120的0.9975倍；下一开盘退出 |
+
+三只资产只做多/现金，无杠杆。国债这个版本不用AR-GARCH、RSI或ATR退出；这是依据高换手失败的诊断更换机制，不能说AR-GARCH改好后在国债上有效。
+
+AR版本状态失效只禁止新开仓，已有仓位仍由ATR退出。连续确认沿用原定义：连续满足条件，方向取当日TSI；没有新增“连续多日TSI同号”的要求。
+
+## 本轮额外比较
+
+黄金：以原no_rho_10、k=3为锚，比较k=4.5、6；另比较k=4.5并要求收盘高于MA120的入场过滤。MA120过滤只影响入场，不触发已有仓位卖出。
+
+国债：比较no_rho_10配k=4.5、k=4.5加0.5%价格距离下限；另比较MA60/120/240、0.25%缓冲、连续5日确认，并加一个MA120/0.5%缓冲邻近对照。
+
+国债原k=1.5的ATR距离中位数约0.23%，约91%的测试日小于模型0.4%的往返摩擦。这个比较是诊断线索，不能由此单独证明每笔亏损都由成本导致。
+
+距离下限实现为 `ATR_effective=max(ATR, 0.005*当日复权收盘/k)`。这不是固定亏损0.5%的保证；价格、ATR及持仓最高价都可能变化，盘前止损仍可能遇到跳空。
+
+## 实际结果：2020—2025
+
+每次成交佣金1‰、逆向滑点1‰，开平两边均扣；现金零收益；按252日年化。
+
+| 资产/方案 | 年化 | 最大回撤 | 年化换手 |
+|---|---:|---:|---:|
+| 黄金 no_rho_3、k=3（旧通用方案） | 6.90% | -22.91% | 18.32 |
+| 黄金 no_rho_10、k=3（保留锚） | 10.11% | -16.54% | 14.17 |
+| 黄金 no_rho_10、k=4.5 | 10.44% | -20.85% | 8.30 |
+| 黄金 no_rho_10、k=6 | 9.36% | -20.20% | 6.22 |
+| 黄金 no_rho_10、k=4.5、MA120入场过滤 | 11.30% | -17.24% | 7.95 |
+| 黄金买入持有 | 19.18% | -20.47% | 0.17 |
+| 国债 no_rho_3、k=1.5（旧通用方案） | -4.53% | -23.49% | 30.44 |
+| 国债 no_rho_10、k=4.5 | 0.11% | -2.46% | 6.22 |
+| 国债 no_rho_10、k=4.5、0.5%距离下限 | 0.33% | -2.50% | 5.53 |
+| 国债 MA120、0.25%缓冲、5日确认 | 2.75% | -4.37% | 0.86 |
+| 国债买入持有 | 3.01% | -4.92% | 0.17 |
+
+黄金放宽止损减少交易，但k=4.5的回撤大于原k=3，所以不因收益略高就升级为主方案。MA120新增过滤是探索候选；只用2015—2019排序时选中k=6，并未选中后段表现最高的MA120过滤版本。训练期黄金多数候选亏损，不能声称该模型已经跨周期稳定。
+
+国债由负收益转为正收益，主要对应减少过密的交易，而非预测能力已获证明。MA120版本测试期只有2笔已平仓交易，仍需更多独立事件验证。MA60/240邻近参数结果都保留在报告，不按后段最高收益改成MA60。
+
+### 组合比较
+
+`ablation_anchor_equal_initial`使用上方“主候选”三条规则，各1/3初始资金，期间不在三个子账户间再平衡。
+
+| 组合 | 年化 | 最大回撤 | 卡玛 |
+|---|---:|---:|---:|
+| 原统一no_rho_3等分初始资金 | 3.33% | -10.74% | 0.310 |
+| 本版消融锚组合 | 6.45% | -5.48% | 1.177 |
+| 本轮预设实验组合（黄金换k=4.5） | 6.58% | -6.47% | 1.016 |
+| 仅用2015—2019选新候选的组合 | 6.15% | -6.81% | 0.904 |
+| 原月度逆波动配置 | 7.50% | -4.83% | 1.552 |
+
+新组合相对旧通用多头CTA改善，但没有超过原逆波动的风险收益。配置机制和风险暴露不同，上表不构成同风险择时alpha检验。
+
+去掉2025年后，黄金原no_rho_10锚的年化约3.15%，k=4.5+MA120约4.07%，明显低于含2025的表现。这是重要的行情依赖，不能略去。
+
+## 训练选择与预设方案
+
+- `tailored_preset_equal_initial`：本轮第一轮执行前给定的实验参数，股票no_rho_3、黄金no_rho_10/k4.5、国债MA120/0.25%/5日。它不因后段结果改成最高收益参数。
+- `train_selected_equal_initial`：按2015—2019评分，股票no_rho_3、黄金k6、国债MA120/0.25%/5日。
+- `ablation_anchor_equal_initial`：保留既有消融中黄金no_rho_10/k3，组合国债新慢趋势规则；在解读第一轮结果后补充展示，不是新的独立验证。
+- `old_no_rho_3_equal_initial`：原改造工程的通用多头策略，逐日账户已核对。
+
+训练评分为 `CAGR/max(6%,abs(MDD))-0.02*annual_turnover`，只在标记eligible的候选中选择；完整排序同时列出参考方案。候选设计本身仍受已看历史影响。
+
+## 账本与测试
+
+沿用原engine，增加可选long_only参数：负向信号只允许退出已有多头，不得开空；未支付应收不能融资买入。默认旧接口行为保持兼容，但本研究所有实际回测均显式使用long_only=True。
+
+收盘决策、下一开盘成交；趋势ATR止损使用盘前已知价；开盘新仓当日不执行盘中止损；日内不重入。慢均线方案只在确认离场后的下一开盘卖出。全部实际持仓非负、现金非负，并核对现金+市值+应收=净值。
+
+16项测试覆盖原撮合、止损、分红及新增负信号只能平多、信号前缀一致性、未来价格扰动、应收不能融资、子账户换手汇总。数据中有参考记录的旧方案逐日净值匹配至浮点精度。
+
+小数份额、无最低佣金、无成交容量模型。实际交易前仍需整手与资金规模验证。本包用于研究，不是下单程序。
+
+## 数据追加
+
+输入价格和现金分红格式沿用原包。模型缓存按规范化输入DataFrame哈希匹配，且核对窗口索引和每窗1,000个有效Bootstrap。
+
+追加行情或修改模型后，必须在原optimized工程用原run.py重新生成匹配缓存，再复制到本包cache；不得重命名旧缓存冒充新输入。这里不附新的模型估计器。
+
+本包现有行情截至2025-12-31，虽然分红表含后续日期，也不会生成2026行情或业绩。
+

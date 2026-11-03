@@ -1,0 +1,3 @@
+entry_date,exit_date,direction,kind,entry_price,exit_price,return_net,reason
+2020-01-02,2020-06-24,1,trend,119.72060099999999,121.50537299999999,0.01288002239462549,confirmed_ma_exit
+2021-01-13,2022-12-16,1,trend,121.64352199999999,128.324547,0.05281524402673354,confirmed_ma_exit

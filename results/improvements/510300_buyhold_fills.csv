@@ -1,0 +1,2 @@
+date,side,quantity,reference_price,fill_price,commission,slippage_cash,reason
+2020-01-02,buy,0.2422337368944161,4.12,4.12412,0.0009990009990009992,0.000998002996004863,entry

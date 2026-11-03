@@ -1,0 +1,33 @@
+{
+  "status": "Retrospective research rules for future validation, not deployment instructions",
+  "cash_return": 0,
+  "shorts": false,
+  "leverage": false,
+  "decision": "close; execute next open; prior-known ATR intraday stop for AR sleeves",
+  "portfolio": "equal initial capital independent subaccounts; no cross-sleeve rebalancing",
+  "510300": {
+    "strategy": "no_rho_3",
+    "rho_positive_required": false,
+    "confirmation_days": 3,
+    "atr_multiple": 4.5,
+    "rsi_entries": false
+  },
+  "518880": {
+    "strategy": "no_rho_10",
+    "rho_positive_required": false,
+    "confirmation_days": 10,
+    "atr_multiple": 3.0,
+    "rsi_entries": false,
+    "note": "Keep existing ablation anchor; wider stops and MA120 are separate exploratory candidates"
+  },
+  "511010": {
+    "strategy": "slow_ma120_band0.25pct_5d",
+    "price": "adjusted close",
+    "ma_window": 120,
+    "entry": "5 consecutive closes above each day's MA120 * 1.0025",
+    "exit": "5 consecutive closes below each day's MA120 * 0.9975; next open",
+    "ar_garch": false,
+    "atr_exit": false,
+    "rsi_entries": false
+  }
+}

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>报告导航 — 股债金改进研究</title>
+<style>
+  body{max-width:900px;margin:40px auto;padding:0 20px;font:16px/1.65 system-ui;color:#172230;background:#fff}
+  h1{color:#14385c;font-size:22px}
+  h1 span{display:block;font-size:13px;color:#5a6b7a;font-weight:400;margin-top:6px}
+  .card{display:block;border:1px solid #dde3e9;border-radius:10px;padding:16px 20px;margin:14px 0;text-decoration:none;color:inherit;transition:border-color .15s}
+  .card:hover{border-color:#378ADD;background:#f6fafd}
+  .card h2{margin:0 0 6px;font-size:16px;color:#14385c}
+  .card p{margin:0;font-size:13px;color:#5a6b7a}
+  .tag{display:inline-block;font-size:12px;background:#e6f1fb;color:#185fa5;border-radius:4px;padding:1px 8px;margin-left:8px;vertical-align:2px}
+  .note{background:#fff4cf;padding:12px 16px;border-radius:8px;font-size:13px;margin-top:28px}
+  code{background:#edf2f7;padding:1px 5px;border-radius:4px;font-size:13px}
+</style>
+<h1>报告导航<span>本页位于代码根目录，双击即可打开；从任意一份报告点浏览器"返回"可回到这里</span></h1>
+
+<a class="card" href="results/portfolio/portfolio_report.html">
+  <h2>股债金组合主报告<span class="tag">主方案</span></h2>
+  <p>36 个候选对照、年度滚动选择、ES 风控对照、成本压力测试。推荐主方案：月度逆波动配置（results/portfolio/）</p>
+</a>
+
+<a class="card" href="results/improvements/improvements_report.html">
+  <h2>状态改造实验结果<span class="tag">改进版 CTA</span></h2>
+  <p>原 CTA 由多空改为只做多等状态改造的实验报告（results/improvements/）</p>
+</a>
+
+<a class="card" href="results/report.html">
+  <h2>时序CTA研报日频复现与差异审计<span class="tag">原版复现</span></h2>
+  <p>AR-GARCH 研报策略的日频复现主报告（results/）</p>
+</a>
+
+<a class="card" href="results/audit/audit_report.html">
+  <h2>CTA复现差异定位<span class="tag">审计</span></h2>
+  <p>复现结果与研报原文差异的逐项定位（results/audit/）</p>
+</a>
+
+<h2 style="margin-top:32px;color:#14385c;font-size:15px">学习资料与历史版本（docs/）</h2>
+
+<a class="card" href="docs/时序CTA方法论_学习手册.html">
+  <h2>时序CTA方法论 · 零基础精读手册<span class="tag">学习</span></h2>
+  <p>从零理解时序动量、CTA 与资产配置的原理，适合先读这份再看主报告</p>
+</a>
+
+<a class="card" href="docs/日频股债金CTA研究_早期版本.html">
+  <h2>日频股债金CTA研究（早期版本）<span class="tag">存档</span></h2>
+  <p>主报告定稿前的研究版快照，保留作对照；最新结论以 portfolio_report.html 为准</p>
+</a>
+
+<div class="note">
+  项目说明见 <code>README.md</code>；候选明细等数据文件在 <code>results/portfolio/</code>（如 <code>all_candidates.csv</code>、<code>attribution.csv</code>）。本页只做入口，重新生成报告请运行 <code>python portfolio_research.py --data data</code>。
+</div>

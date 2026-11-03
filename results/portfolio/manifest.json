@@ -1,0 +1,242 @@
+{
+  "start": "2020-01-01",
+  "end": "2025-12-31",
+  "candidates": 36,
+  "candidate_configs": [
+    {
+      "trend": "none",
+      "allocation": "equal",
+      "frequency": "monthly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "none",
+      "allocation": "equal",
+      "frequency": "monthly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "none",
+      "allocation": "equal",
+      "frequency": "weekly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "none",
+      "allocation": "equal",
+      "frequency": "weekly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "none",
+      "allocation": "invvol",
+      "frequency": "monthly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "none",
+      "allocation": "invvol",
+      "frequency": "monthly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "none",
+      "allocation": "invvol",
+      "frequency": "weekly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "none",
+      "allocation": "invvol",
+      "frequency": "weekly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "none",
+      "allocation": "riskparity",
+      "frequency": "monthly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "none",
+      "allocation": "riskparity",
+      "frequency": "monthly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "none",
+      "allocation": "riskparity",
+      "frequency": "weekly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "none",
+      "allocation": "riskparity",
+      "frequency": "weekly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ma120",
+      "allocation": "equal",
+      "frequency": "monthly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ma120",
+      "allocation": "equal",
+      "frequency": "monthly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ma120",
+      "allocation": "equal",
+      "frequency": "weekly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ma120",
+      "allocation": "equal",
+      "frequency": "weekly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ma120",
+      "allocation": "invvol",
+      "frequency": "monthly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ma120",
+      "allocation": "invvol",
+      "frequency": "monthly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ma120",
+      "allocation": "invvol",
+      "frequency": "weekly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ma120",
+      "allocation": "invvol",
+      "frequency": "weekly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ma120",
+      "allocation": "riskparity",
+      "frequency": "monthly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ma120",
+      "allocation": "riskparity",
+      "frequency": "monthly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ma120",
+      "allocation": "riskparity",
+      "frequency": "weekly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ma120",
+      "allocation": "riskparity",
+      "frequency": "weekly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "equal",
+      "frequency": "monthly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "equal",
+      "frequency": "monthly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "equal",
+      "frequency": "weekly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "equal",
+      "frequency": "weekly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "invvol",
+      "frequency": "monthly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "invvol",
+      "frequency": "monthly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "invvol",
+      "frequency": "weekly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "invvol",
+      "frequency": "weekly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "riskparity",
+      "frequency": "monthly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "riskparity",
+      "frequency": "monthly",
+      "es_budget": 0.015
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "riskparity",
+      "frequency": "weekly",
+      "es_budget": 0.0
+    },
+    {
+      "trend": "ensemble",
+      "allocation": "riskparity",
+      "frequency": "weekly",
+      "es_budget": 0.015
+    }
+  ],
+  "train": "2015-2019",
+  "validation": "2020-2022",
+  "later": "2023-2025 (previously inspected; not pristine OOS)",
+  "selection": "annual expanding train top3 distinct base rules (ES variants not duplicated); score CAGR/max(.06,abs(MDD))-.02*annual_one_way_turnover",
+  "execution": "close decision/next open; weekly or monthly; raw-price ledger + dividend receivables",
+  "fee": 0.001,
+  "slippage": 0.001,
+  "source_hashes": {
+    "etf_daily.csv": "311b38536253dce9dda865a21a836cd348e88708d0052689a95e95a7d3c99591",
+    "etf_dividend.csv": "5e0e0c70f7facbc8743b113e6bdc28c129fa06b0abdf562ad78eee0938f04479"
+  },
+  "code_sha256": "eeaf03bf4b54c1fe1628a0a274c4f94e4f2d95d9a4f5952cd83d7d38a98fbd0e",
+  "python": "3.12.15 | packaged by Anaconda, Inc. | (main, Oct  1 2026, 20:14:50) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "exposure_control_train_ratio": 1.0,
+  "macro_included": false,
+  "maximum_pnl_reconstruction_error": 4.597017211338539e-16,
+  "maximum_identity_error": 0.0,
+  "adjustments": "Only causal adjclose ratios used for signals; dividends counted once in raw-price ledger."
+}

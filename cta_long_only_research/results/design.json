@@ -1,0 +1,283 @@
+{
+  "design_status": "retrospective; designed after viewing 2020-2025",
+  "run_started_utc": "2026-11-02T08:23:52.448025+00:00",
+  "preset_chosen_before_this_run": {
+    "510300": "no_rho_3",
+    "518880": "ar10_k4.5",
+    "511010": "slow_ma120_band0.25pct_5d"
+  },
+  "all_candidates": {
+    "510300": [
+      {
+        "name": "baseline_long",
+        "family": "ar",
+        "state": "baseline_long",
+        "atr_k": 4.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "neutral_10",
+        "family": "ar",
+        "state": "neutral_10",
+        "atr_k": 4.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "no_rho_10",
+        "family": "ar",
+        "state": "no_rho_10",
+        "atr_k": 4.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "no_rho_3",
+        "family": "ar",
+        "state": "no_rho_3",
+        "atr_k": 4.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": true
+      },
+      {
+        "name": "buyhold",
+        "family": "buyhold",
+        "state": "no_rho_10",
+        "atr_k": 4.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      }
+    ],
+    "518880": [
+      {
+        "name": "baseline_long",
+        "family": "ar",
+        "state": "baseline_long",
+        "atr_k": 3.0,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "neutral_10",
+        "family": "ar",
+        "state": "neutral_10",
+        "atr_k": 3.0,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "no_rho_10",
+        "family": "ar",
+        "state": "no_rho_10",
+        "atr_k": 3.0,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": true
+      },
+      {
+        "name": "no_rho_3",
+        "family": "ar",
+        "state": "no_rho_3",
+        "atr_k": 3.0,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "buyhold",
+        "family": "buyhold",
+        "state": "no_rho_10",
+        "atr_k": 3.0,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "ar10_k4.5",
+        "family": "ar",
+        "state": "no_rho_10",
+        "atr_k": 4.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": true
+      },
+      {
+        "name": "ar10_k6",
+        "family": "ar",
+        "state": "no_rho_10",
+        "atr_k": 6.0,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": true
+      },
+      {
+        "name": "ar10_k4.5_ma120",
+        "family": "ar",
+        "state": "no_rho_10",
+        "atr_k": 4.5,
+        "stop_floor": 0.0,
+        "ma": 120,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": true
+      }
+    ],
+    "511010": [
+      {
+        "name": "baseline_long",
+        "family": "ar",
+        "state": "baseline_long",
+        "atr_k": 1.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "neutral_10",
+        "family": "ar",
+        "state": "neutral_10",
+        "atr_k": 1.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "no_rho_10",
+        "family": "ar",
+        "state": "no_rho_10",
+        "atr_k": 1.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "no_rho_3",
+        "family": "ar",
+        "state": "no_rho_3",
+        "atr_k": 1.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "buyhold",
+        "family": "buyhold",
+        "state": "no_rho_10",
+        "atr_k": 1.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": false
+      },
+      {
+        "name": "ar10_k4.5",
+        "family": "ar",
+        "state": "no_rho_10",
+        "atr_k": 4.5,
+        "stop_floor": 0.0,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": true
+      },
+      {
+        "name": "ar10_k4.5_floor0.5pct",
+        "family": "ar",
+        "state": "no_rho_10",
+        "atr_k": 4.5,
+        "stop_floor": 0.005,
+        "ma": 0,
+        "band": 0.0,
+        "confirm": 5,
+        "eligible": true
+      },
+      {
+        "name": "slow_ma60_band0.25pct_5d",
+        "family": "slow",
+        "state": "no_rho_10",
+        "atr_k": 3.0,
+        "stop_floor": 0.0,
+        "ma": 60,
+        "band": 0.0025,
+        "confirm": 5,
+        "eligible": true
+      },
+      {
+        "name": "slow_ma120_band0.25pct_5d",
+        "family": "slow",
+        "state": "no_rho_10",
+        "atr_k": 3.0,
+        "stop_floor": 0.0,
+        "ma": 120,
+        "band": 0.0025,
+        "confirm": 5,
+        "eligible": true
+      },
+      {
+        "name": "slow_ma240_band0.25pct_5d",
+        "family": "slow",
+        "state": "no_rho_10",
+        "atr_k": 3.0,
+        "stop_floor": 0.0,
+        "ma": 240,
+        "band": 0.0025,
+        "confirm": 5,
+        "eligible": true
+      },
+      {
+        "name": "slow_ma120_band0.5pct_5d",
+        "family": "slow",
+        "state": "no_rho_10",
+        "atr_k": 3.0,
+        "stop_floor": 0.0,
+        "ma": 120,
+        "band": 0.005,
+        "confirm": 5,
+        "eligible": true
+      }
+    ]
+  },
+  "selection": "2015-2019 only; CAGR/max(.06,abs(MDD))-.02*annual_turnover; alphabetical tie break",
+  "prohibitions": "No claim of pristine OOS; no selection using 2020-2025 scores; all failures retained"
+}

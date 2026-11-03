@@ -1,0 +1,21 @@
+test_costs_both_directions (test_engine.EngineTests.test_costs_both_directions) ... ok
+test_exact_touch_does_not_trigger_strict_rule (test_engine.EngineTests.test_exact_touch_does_not_trigger_strict_rule) ... ok
+test_future_cannot_change_past (test_engine.EngineTests.test_future_cannot_change_past) ... ok
+test_indicators_causal (test_engine.EngineTests.test_indicators_causal) ... ok
+test_intraday_fixed_stop_filled_at_stop (test_engine.EngineTests.test_intraday_fixed_stop_filled_at_stop) ... ok
+test_long_stop_uses_high_not_close (test_engine.EngineTests.test_long_stop_uses_high_not_close) ... ok
+test_new_entry_not_stopped_same_day (test_engine.EngineTests.test_new_entry_not_stopped_same_day) ... ok
+test_no_atr_literal_keeps_trend_trade (test_engine.EngineTests.test_no_atr_literal_keeps_trend_trade) ... ok
+test_rsi_exit_thresholds (test_engine.EngineTests.test_rsi_exit_thresholds) ... ok
+test_short_stop_uses_low (test_engine.EngineTests.test_short_stop_uses_low) ... ok
+test_signed_dividend_and_pay_date (test_engine.EngineTests.test_signed_dividend_and_pay_date) ... ok
+test_stop_ratchet_cannot_loosen (test_engine.EngineTests.test_stop_ratchet_cannot_loosen) ... ok
+test_combined_accounts_use_capital_weighted_turnover (test_tailored.TailoredTests.test_combined_accounts_use_capital_weighted_turnover) ... ok
+test_negative_exit_never_becomes_short_entry (test_tailored.TailoredTests.test_negative_exit_never_becomes_short_entry) ... ok
+test_slow_confirmation_full_window_and_no_future (test_tailored.TailoredTests.test_slow_confirmation_full_window_and_no_future) ... ok
+test_unpaid_distribution_cannot_finance_reentry (test_tailored.TailoredTests.test_unpaid_distribution_cannot_finance_reentry) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.163s
+
+OK

@@ -1,0 +1,40 @@
+{
+  "recommended_research_rule": {
+    "trend": "none",
+    "allocation": "invvol",
+    "frequency": "monthly",
+    "es_budget": 0.0
+  },
+  "recommendation_note": "Simple monthly inverse-volatility allocation is the next validation baseline, selected with knowledge of this retrospective study; not a claim of future optimum.",
+  "as_of": "2025-12-31",
+  "next_period_top3": [
+    {
+      "trend": "none",
+      "allocation": "riskparity",
+      "frequency": "weekly",
+      "es_budget": 0.0,
+      "name": "none_riskparity_weekly_es0"
+    },
+    {
+      "trend": "none",
+      "allocation": "invvol",
+      "frequency": "weekly",
+      "es_budget": 0.0,
+      "name": "none_invvol_weekly_es0"
+    },
+    {
+      "trend": "none",
+      "allocation": "invvol",
+      "frequency": "monthly",
+      "es_budget": 0.0,
+      "name": "none_invvol_monthly_es0"
+    }
+  ],
+  "target_after_next_eligible_close": {
+    "510300": 0.24323870022110503,
+    "518880": 0.156761299778895,
+    "511010": 0.6
+  },
+  "cash_weight": 0.0,
+  "note": "Targets are last scheduled close targets, not an execution recommendation. Recompute on fresh data before next trading period."
+}

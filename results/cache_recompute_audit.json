@@ -1,0 +1,26 @@
+[
+  {
+    "code": "510300",
+    "row": 1743,
+    "date": "2019-07-24",
+    "bootstrap": 1000,
+    "max_absolute_difference": 0.0,
+    "input_hash": "9876a0a96306dc2b"
+  },
+  {
+    "code": "518880",
+    "row": 1618,
+    "date": "2020-03-19",
+    "bootstrap": 1000,
+    "max_absolute_difference": 0.0,
+    "input_hash": "d0f72be81ec3d3cb"
+  },
+  {
+    "code": "511010",
+    "row": 1651,
+    "date": "2020-01-02",
+    "bootstrap": 1000,
+    "max_absolute_difference": 0.0,
+    "input_hash": "cec2cf1d6f854a3a"
+  }
+]
